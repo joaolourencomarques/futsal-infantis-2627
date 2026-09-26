@@ -53,6 +53,23 @@
   .header { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
   .header .logo { width:40px; height:40px; object-fit:contain; border-radius:6px; background:#fff; }
   .header h1 { margin:0; font-size:20px; }
+  #stickyBar{
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--accent);
+    color: #fff;
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    margin-bottom: 8px;
+  }
+  #stickyBar span{white-space:nowrap}
   #legendModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999}
   #legendModal .panel{background:#fff;padding:16px;border-radius:10px;max-width:720px;width:94%;max-height:90vh;overflow:auto}
   #legendContent div.row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #eee}
@@ -70,6 +87,11 @@
 </style>
 </head>
 <body>
+<div id="stickyBar">
+  <span id="stickyPart">—</span>
+  <span id="stickyElapsed">00:00</span>
+  <span id="stickyScore">0 - 0</span>
+</div>
 <div class="header">
   <img class="logo" src="images/SCBM.jpg" alt="SC Beira-Mar" onerror="this.style.display='none'">
   <h1>Futsal do SC BEIRAMAR</h1>
@@ -187,6 +209,10 @@
 <div class="card">
   <div class="row">
     <button id="exportBtn" class="btn" type="button">Exportar Eventos CSV</button>
+    <button id="saveGameBtn" class="btn green" type="button">Guardar jogo</button>
+    <button id="loadGameBtn" class="btn gray" type="button">Abrir jogo</button>
+    <input type="file" id="loadGameFile" accept=".json" style="display:none">
+    
     <div class="muted" style="margin-left:8px">Eventos: <span id="queueCount">0</span></div>
   </div>
 
@@ -655,10 +681,21 @@ function renderQueue(){
 
 function renderLiveInfo(){
   const currentPart = session.currentPart || null;
-  document.getElementById('livePart').textContent = currentPart ? `${currentPart}ª Parte` : '—';
-  document.getElementById('liveElapsedPart').textContent = currentPart ? formatMMSS(getElapsedForPart(currentPart)) : '00:00';
+  const partText = currentPart ? `${currentPart}ª Parte` : '—';
+  const elapsedText = currentPart ? formatMMSS(getElapsedForPart(currentPart)) : '00:00';
   const score = getScore();
-  document.getElementById('liveScore').textContent = `${score.marcados} - ${score.sofridos}`;
+  const scoreText = `${score.marcados} - ${score.sofridos}`;
+
+  document.getElementById('livePart').textContent = partText;
+  document.getElementById('liveElapsedPart').textContent = elapsedText;
+  document.getElementById('liveScore').textContent = scoreText;
+
+  const stickyPart = document.getElementById('stickyPart');
+  const stickyElapsed = document.getElementById('stickyElapsed');
+  const stickyScore = document.getElementById('stickyScore');
+  if(stickyPart) stickyPart.textContent = partText;
+  if(stickyElapsed) stickyElapsed.textContent = elapsedText;
+  if(stickyScore) stickyScore.textContent = scoreText;
 }
 
 function renderPlayerStatsTable(){
@@ -1167,6 +1204,67 @@ document.getElementById('closeLegend').addEventListener('click', closeLegend);
     renderCharts();
   }, 1000);
 })();
+
+// GUARDAR JOGO
+document.getElementById('saveGameBtn').addEventListener('click', () => {
+
+  const data = {
+    session: session,
+    roster: ROSTER,
+    events: queue,
+    onField: onField
+  };
+
+  const json = JSON.stringify(data, null, 2);
+
+  const blob = new Blob([json], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "futsal_game_backup.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+});
+
+
+// ABRIR JOGO
+document.getElementById('loadGameBtn').addEventListener('click', () => {
+  document.getElementById('loadGameFile').click();
+});
+
+document.getElementById('loadGameFile').addEventListener('change', (e) => {
+
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(event){
+
+    try{
+
+      const data = JSON.parse(event.target.result);
+
+      session = data.session || {};
+      ROSTER = data.roster || [];
+      queue = data.events || [];
+      onField = data.onField || [null,null,null,null,null];
+
+      saveAll();
+
+      alert("Jogo carregado com sucesso");
+
+    }catch(err){
+      alert("Erro ao abrir ficheiro");
+    }
+
+  };
+
+  reader.readAsText(file);
+
+});
 </script>
 </body>
 </html>
