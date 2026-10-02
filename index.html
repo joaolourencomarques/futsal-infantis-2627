@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
 <meta charset="utf-8"/>
-<title>Futsal — SC BEIRA-MAR | Infantis 2026/27</title>
+<title>Futsal — SC BEIRA-MAR</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -71,7 +71,7 @@ canvas{width:100%!important;height:300px!important}
 
 <div class="header">
   <img class="logo" src="images/SCBM.jpg" alt="SC Beira-Mar" onerror="this.style.display='none'">
-  <h1>Futsal SC BEIRA-MAR — Infantis 2026/27</h1>
+  <h1>Futsal SC BEIRA-MAR — <span id="escalao"></span></h1>
 </div>
 
 <div id="modal"><div class="panel">
@@ -196,6 +196,8 @@ canvas{width:100%!important;height:300px!important}
 <footer style="text-align:center;margin:18px 0 10px"><button id="legendBtn" class="btn gray" type="button">Legenda de eventos</button></footer>
 
 <script>
+/* ===== ÚNICA LINHA A ALTERAR PARA OUTRO ESCALÃO ===== */
+const ESCALAO='Infantis 2026/27';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad=n=>String(n).padStart(2,'0');
@@ -234,7 +236,9 @@ const posCode={Fixo:'P_FIXO',Ala:'P_ALA',Pivot:'P_PIVOT',GR:'P_GR'};
 const codePos={P_FIXO:'Fixo',P_ALA:'Ala',P_PIVOT:'Pivot',P_GR:'GR'};
 
 /* ---------- Estado ---------- */
-const K={r:'Infantis_convocados_roster_v2',q:'Infantis_events_queue_v2',s:'Infantis_session_v3',f:'Infantis_onfield_v2'};
+const NS='futsal:'+location.pathname.replace(/[^\w]+/g,'_')+':';
+const K={r:NS+'roster',q:NS+'queue',s:NS+'session',f:NS+'onfield'};
+$('escalao').textContent=ESCALAO;document.title='Futsal — SC BEIRA-MAR | '+ESCALAO;
 const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
 // Cada vez que a página abre, o jogo começa do zero (só o elenco fica em cache)
 [K.q,K.s,K.f].forEach(k=>{try{localStorage.removeItem(k)}catch{}});
