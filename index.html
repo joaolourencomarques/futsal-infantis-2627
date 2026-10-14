@@ -96,16 +96,16 @@ canvas{width:100%!important;height:300px!important}
 <div id="modal"><div class="panel">
   <h3 id="mTitle" style="margin-top:0"></h3>
   <div id="mBody"></div>
-  <div style="text-align:right;margin-top:12px"><button id="mClose" class="btn gray" type="button">Fechar</button></div>
+  <div style="text-align:right;margin-top:12px"><button id="mClose" class="btn gray" title="Fecha esta janela" type="button">Fechar</button></div>
 </div></div>
 <div id="toast"></div>
 
 <div class="card">
   <div class="section-title">1. Gravação de ficheiros</div>
   <div class="row">
-    <button id="saveGameBtn" class="btn green" type="button">Guardar jogo</button>
-    <button id="loadGameBtn" class="btn gray" type="button">Abrir jogo</button>
-    <button id="newGameBtn" class="btn warn" type="button">Novo jogo</button>
+    <button id="saveGameBtn" class="btn green" title="Descarrega o jogo (eventos, sessão e convocados) num ficheiro .json" type="button">Guardar jogo</button>
+    <button id="loadGameBtn" class="btn gray" title="Carrega um jogo guardado anteriormente (.json)" type="button">Abrir jogo</button>
+    <button id="newGameBtn" class="btn warn" title="Apaga os eventos e começa um jogo novo" type="button">Novo jogo</button>
     <input type="file" id="loadGameFile" accept=".json" style="display:none">
     <span class="muted">Eventos: <span id="queueCount">0</span></span>
   </div>
@@ -114,24 +114,24 @@ canvas{width:100%!important;height:300px!important}
 <div class="card">
   <div class="section-title">2. Informação do jogo</div>
   <div class="row">
-    <input id="opponent" placeholder="Equipa adversária" style="width:200px">
+    <input id="opponent" title="Nome da equipa adversária" placeholder="Equipa adversária" style="width:200px">
     <input id="date" type="date">
     <input id="time" type="time">
     <input id="location" placeholder="Local" style="width:200px">
     <input id="competition" placeholder="Competição">
     <input id="round" placeholder="Jornada" style="width:90px">
-    <label class="small">Duração da parte (min) <input id="partMin" type="number" min="1" max="60" value="25" style="width:70px"></label>
+    <label class="small" title="Duração de cada parte, usada nas escalas dos gráficos">Duração da parte (min) <input id="partMin" type="number" min="1" max="60" value="25" style="width:70px"></label>
   </div>
 </div>
 
 <div class="clockbar">
   <div class="row">
-    <button id="startPart" class="btn green" type="button">Início 1ª Parte</button>
-    <button id="endPart1" class="btn warn" type="button">Fim 1ª Parte</button>
-    <button id="startPart2" class="btn green" type="button">Início 2ª Parte</button>
-    <button id="endPart2" class="btn warn" type="button">Fim 2ª Parte</button>
-    <button id="pauseClock" class="btn gray" type="button">Pausar relógio</button>
-    <button id="resumeClock" class="btn" type="button">Retomar relógio</button>
+    <button id="startPart" class="btn green" title="Arranca o relógio da 1ª parte" type="button">Início 1ª Parte</button>
+    <button id="endPart1" class="btn warn" title="Termina a 1ª parte e pára o relógio" type="button">Fim 1ª Parte</button>
+    <button id="startPart2" class="btn green" title="Arranca o relógio da 2ª parte" type="button">Início 2ª Parte</button>
+    <button id="endPart2" class="btn warn" title="Termina a 2ª parte e o jogo" type="button">Fim 2ª Parte</button>
+    <button id="pauseClock" class="btn gray" title="Pausa o relógio (desconta o tempo parado)" type="button">Pausar relógio</button>
+    <button id="resumeClock" class="btn" title="Retoma o relógio depois de uma pausa" type="button">Retomar relógio</button>
   </div>
   <div class="summary-grid">
     <div class="summary-box"><div class="small">Parte atual</div><div id="livePart" class="big">—</div></div>
@@ -151,17 +151,16 @@ canvas{width:100%!important;height:300px!important}
 <div class="card">
   <div class="row" style="justify-content:space-between;margin-top:0">
     <div class="section-title" style="margin:0">4. Jogadores em campo</div>
-    <div class="row" style="margin:0">
-      <button id="fixSubBtn" class="btn warn" type="button">Corrigir substituição</button>
-      <button id="clearSlots" class="btn gray" type="button">Limpar Campo</button>
+    <div class="row" style="margin:0 0 0 auto;justify-content:flex-end">
+      <button id="clearSlots" class="btn gray" type="button" title="Tira todos os jogadores do campo (regista as saídas)">Limpar Campo</button>
+      <button id="fixSubBtn" class="btn warn" type="button" title="Regista uma entrada/saída que te esqueceste, no minuto em que aconteceu">Corrigir substituição</button>
+      <button id="optsBtn" class="btn warn" type="button" title="Define o que a app pergunta ao registar remates, golos e assistências">⚙ Opções de registo</button>
     </div>
   </div>
   <div class="row">
-    <button class="team-btn gos" data-team="GOS" type="button">Golo sofrido</button>
-    <button class="team-btn def" data-team="DEF" type="button">Defesa do GR</button>
-    <button class="team-btn" data-team="RSO" type="button">Remate sofrido</button>
-    <button id="optsBtn" class="btn warn" type="button">⚙ Opções de registo</button>
-    <span id="optsLabel" class="small"></span>
+    <button class="team-btn gos" data-team="GOS" type="button" title="Regista um golo sofrido (equipa)">Golo sofrido</button>
+    <button class="team-btn def" data-team="DEF" type="button" title="Regista uma defesa do guarda-redes (conta como ação na nossa área)">Defesa do GR</button>
+    <button class="team-btn" data-team="RSO" type="button" title="Regista um remate sofrido (equipa)">Remate sofrido</button>
   </div>
   <div id="onField"></div>
   <div class="small" style="margin-top:8px"><strong>Tempo em jogo</strong>: total acumulado | <strong>Na quadra</strong>: entrada atual. Para substituir: "Trocar" no jogador que sai e depois "Entrar" no que entra. Esqueceste-te de uma troca? Usa "Corrigir substituição" e indica o minuto real.</div>
@@ -183,10 +182,10 @@ canvas{width:100%!important;height:300px!important}
   </div>
   <div class="row" style="justify-content:space-between">
     <label>Estatísticas automáticas por jogador</label>
-    <button id="exportStatsBtn" class="btn" type="button">Exportar estatísticas CSV</button>
+    <button id="exportStatsBtn" class="btn" title="Descarrega as estatísticas por jogador em CSV" type="button">Exportar estatísticas CSV</button>
   </div>
   <div class="tblwrap"><table id="playerStatsTable"><thead><tr>
-    <th>#</th><th>Jogador</th><th>Tempo em jogo</th><th>Golos</th><th>Assist.</th><th>RAB</th><th>RFB</th><th>REC</th><th>PER</th><th>FCO</th><th>FSO</th><th>DEF</th>
+    <th title="Número do jogador">#</th><th title="Nome do jogador">Jogador</th><th title="Tempo total em campo">Tempo em jogo</th><th title="Golos marcados">Golos</th><th title="Assistências">Assist.</th><th title="Remates à baliza">RAB</th><th title="Remates fora da baliza">RFB</th><th title="Recuperações de bola">REC</th><th title="Perdas de bola">PER</th><th title="Faltas cometidas">FCO</th><th title="Faltas sofridas">FSO</th><th title="Defesas do guarda-redes">DEF</th>
   </tr></thead><tbody></tbody></table></div>
   <div class="chart-grid">
     <div class="chart-card"><canvas id="chartPlayerMinutes"></canvas></div>
@@ -197,9 +196,9 @@ canvas{width:100%!important;height:300px!important}
   <div class="subhead">
     <strong>Entradas/Saídas (ENT/SAI)</strong>
     <div class="radio-row">
-      <label><input type="radio" name="entSaiFilter" value="0" checked> Ambas</label>
-      <label><input type="radio" name="entSaiFilter" value="1"> 1ª Parte</label>
-      <label><input type="radio" name="entSaiFilter" value="2"> 2ª Parte</label>
+      <label title="Mostra as duas partes"><input type="radio" name="entSaiFilter" value="0" checked> Ambas</label>
+      <label title="Só a 1ª parte"><input type="radio" name="entSaiFilter" value="1"> 1ª Parte</label>
+      <label title="Só a 2ª parte"><input type="radio" name="entSaiFilter" value="2"> 2ª Parte</label>
     </div>
   </div>
   <div id="chartEntSaiWrap" class="dyn-chart-wrap" style="margin-top:8px"><canvas id="chartEntSai"></canvas></div>
@@ -209,26 +208,26 @@ canvas{width:100%!important;height:300px!important}
 <div class="card">
   <div class="section-title">6. Registo de outros eventos</div>
   <div class="manual-row">
-    <select id="manualPlayer" style="min-width:200px"><option value="">(Equipa)</option></select>
-    <select id="manualCode" style="min-width:300px"></select>
+    <select id="manualPlayer" title="Jogador a quem se atribui o evento (ou equipa)" style="min-width:200px"><option value="">(Equipa)</option></select>
+    <select id="manualCode" title="Tipo de evento a registar" style="min-width:300px"></select>
   </div>
   <div class="manual-row">
-    <select id="manualRating" style="width:160px"><option value="">Sem avaliação</option><option value="1">A melhorar</option><option value="5">Muito Bom</option></select>
-    <input id="manualNote" placeholder="Nota (opcional)" style="flex:1">
+    <select id="manualRating" title="Avaliação do desempenho (opcional)" style="width:160px"><option value="">Sem avaliação</option><option value="1">A melhorar</option><option value="5">Muito Bom</option></select>
+    <input id="manualNote" title="Nota livre associada ao evento (opcional)" placeholder="Nota (opcional)" style="flex:1">
   </div>
-  <div style="text-align:right;margin-top:8px"><button id="manualAdd" class="btn" type="button">Adicionar Evento de Avaliação</button></div>
+  <div style="text-align:right;margin-top:8px"><button id="manualAdd" class="btn" title="Regista o evento escolhido para o jogador (ou equipa) selecionado" type="button">Adicionar Evento de Avaliação</button></div>
 </div>
 
 <div class="card">
   <div class="row" style="justify-content:space-between;margin-top:0">
     <div class="section-title" style="margin:0">7. Registo dos eventos (mais recente primeiro)</div>
     <div class="row" style="margin:0">
-      <select id="evFilter"><option value="">Todos</option></select>
-      <button id="exportBtn" class="btn" type="button">Exportar Eventos CSV</button>
+      <select id="evFilter" title="Filtra a tabela por tipo de evento"><option value="">Todos</option></select>
+      <button id="exportBtn" class="btn" title="Escolhe os tipos de eventos e a parte a exportar em CSV" type="button">Exportar Eventos CSV</button>
     </div>
   </div>
   <div class="tblwrap"><table id="eventsTable"><thead><tr>
-    <th>#</th><th>Min</th><th>Parte</th><th>Player</th><th>Evento</th><th>Sigla</th><th>Avaliação</th><th>Nota</th><th>Hora</th><th></th>
+    <th>#</th><th title="Minuto da parte">Min</th><th title="1ª ou 2ª parte">Parte</th><th title="Jogador">Player</th><th title="Descrição do evento">Evento</th><th title="Sigla do evento">Sigla</th><th title="Avaliação do desempenho">Avaliação</th><th title="Nota livre">Nota</th><th title="Hora real do registo">Hora</th><th></th>
   </tr></thead><tbody></tbody></table></div>
 </div>
 
@@ -245,7 +244,7 @@ canvas{width:100%!important;height:300px!important}
   <div class="chart-card" style="margin-top:8px;min-height:460px"><canvas id="chartEventsTimeline"></canvas></div>
 </div>
 
-<footer style="text-align:center;margin:18px 0 10px"><button id="legendBtn" class="btn gray" type="button">Legenda de eventos</button></footer>
+<footer style="text-align:center;margin:18px 0 10px"><button id="legendBtn" class="btn gray" title="Mostra o significado de cada sigla de evento" type="button">Legenda de eventos</button></footer>
 
 <script>
 /* ===== ÚNICA LINHA A ALTERAR PARA OUTRO ESCALÃO ===== */
@@ -499,9 +498,9 @@ function renderRoster(){
  $('calledCount').textContent='('+list.length+')';
  $('roster').innerHTML=list.map(p=>`<div class="player">${vis(p)}<div class="name">${p.number} - ${esc(p.name)}</div>
   <div class="small" style="margin-top:6px">Tempo em jogo: <strong class="playTime" data-player="${p.number}">${fmt(playSec(p.number))}</strong></div>
-  <div style="margin-top:10px;display:flex;gap:6px"><button class="btn gray addFieldBtn" data-num="${p.number}" type="button">${swapIdx!==null?'Entrar (trocar)':'Entrar'}</button><button class="btn removeBtn" data-num="${p.number}" type="button">Retirar</button></div></div>`).join('');
+  <div style="margin-top:10px;display:flex;gap:6px"><button class="btn gray addFieldBtn" data-num="${p.number}" type="button" title="Coloca este jogador em campo (regista a entrada)">${swapIdx!==null?'Entrar (trocar)':'Entrar'}</button><button class="btn removeBtn" data-num="${p.number}" type="button" title="Marca como não convocado para este jogo">Retirar</button></div></div>`).join('');
  $('absentBox').style.display=ab.length?'block':'none';
- $('absentList').innerHTML=ab.map(p=>`<span style="white-space:nowrap"><span class="small">${p.number} - ${esc(p.name)}</span> <button class="btn restoreBtn" data-num="${p.number}" type="button">Repor</button></span>`).join('');
+ $('absentList').innerHTML=ab.map(p=>`<span style="white-space:nowrap"><span class="small">${p.number} - ${esc(p.name)}</span> <button class="btn restoreBtn" data-num="${p.number}" type="button" title="Volta a convocar este jogador">Repor</button></span>`).join('');
 }
 function renderField(){
  fixField();
@@ -510,12 +509,12 @@ function renderField(){
   const p=ROSTER.find(r=>r.number===en.number)||{number:en.number,name:'?'};
   return`<div class="slotCard" ${swapIdx===i?'style="border-color:#111;border-style:solid;box-shadow:0 0 0 3px #FFD400"':''}>
   <div class="slotHeader"><span class="badge">Pos ${i+1} — ${en.position||'—'}</span>
-   <button class="btn gray swapBtn" data-idx="${i}" type="button">Trocar</button><button class="btn gray slotRemove" data-idx="${i}" type="button">Sair</button></div>
+   <button class="btn gray swapBtn" data-idx="${i}" type="button" title="Escolhe este jogador para sair; depois carrega em Entrar no que o substitui">Trocar</button><button class="btn gray slotRemove" data-idx="${i}" type="button" title="Tira este jogador do campo (regista a saída)">Sair</button></div>
   <div style="margin-top:6px;display:flex;flex-direction:column;align-items:center">${vis(p)}
    <div class="name">${p.number} - ${esc(p.name)}</div>
    <div class="small" style="margin-top:6px">Tempo em jogo: <strong class="onFieldTotalTime" data-player="${p.number}">${fmt(playSec(p.number))}</strong></div>
    <div class="small">Na quadra: <strong class="onFieldPartialTime" data-player="${p.number}">${fmt(stintSec(p.number))}</strong></div></div>
-  <div class="pos-picker">${['Fixo','Ala','Pivot','GR'].map(x=>`<button class="pos-btn ${en.position===x?'active':''}" data-idx="${i}" data-pos="${x}" type="button">${x}</button>`).join('')}</div>
+  <div class="pos-picker">${['Fixo','Ala','Pivot','GR'].map(x=>`<button class="pos-btn ${en.position===x?'active':''}" data-idx="${i}" data-pos="${x}" type="button" title="Posição em campo: ${x}">${x}</button>`).join('')}</div>
   <div class="evgrid">${PRIORITY.map(c=>`<button class="event-btn" data-num="${p.number}" data-code="${c}" title="${eventMeta[c].label}" style="background:${typeColors[eventMeta[c].type]};color:${fgOf(typeColors[eventMeta[c].type])}" type="button">${eventMeta[c].sigla}</button>`).join('')}</div></div>`;
  }).join('');
 }
@@ -528,7 +527,7 @@ function renderQueue(){
   const p=ev.player_id==null?null:ROSTER.find(x=>x.number===ev.player_id);
   rows.push(`<tr><td>${i+1}</td><td>${ev.minute}</td><td>${ev.part}</td><td>${ev.player_id==null?'(equipa)':esc(ev.player_id+' - '+(p?p.name:''))}</td>
    <td>${esc(ev.event_label)}${ev.forma_label?' — '+esc(ev.forma_label):''}${ev.local_x!=null&&!ev.forma_label?' 📍':''}</td><td>${esc(ev.event_sigla)}</td><td>${esc(ev.rating_label)}</td><td>${esc(ev.note)}</td>
-   <td>${esc((ev.client_timestamp||'').slice(11,19))}</td><td style="white-space:nowrap">${['GOL','GOS','RAB','RFB','RSO'].includes(ev.event_code)?`<button class="btn gray goalInfoBtn" data-i="${i}" type="button" title="${ev.event_code==='GOL'||ev.event_code==='GOS'?'Forma e local do golo':'Local do remate'}">${ev.event_code==='GOL'||ev.event_code==='GOS'?'ℹ':'📍'}</button> `:''}<button class="btn gray editTime" data-i="${i}" type="button" title="Corrigir o tempo deste evento">⏱</button> <button class="btn warn delEv" data-i="${i}" type="button">x</button></td></tr>`);
+   <td>${esc((ev.client_timestamp||'').slice(11,19))}</td><td style="white-space:nowrap">${['GOL','GOS','RAB','RFB','RSO'].includes(ev.event_code)?`<button class="btn gray goalInfoBtn" data-i="${i}" type="button" title="${ev.event_code==='GOL'||ev.event_code==='GOS'?'Forma e local do golo':'Local do remate'}">${ev.event_code==='GOL'||ev.event_code==='GOS'?'ℹ':'📍'}</button> `:''}<button class="btn gray editTime" data-i="${i}" type="button" title="Corrigir o tempo deste evento">⏱</button> <button class="btn warn delEv" data-i="${i}" type="button" title="Apagar este evento">x</button></td></tr>`);
  }
  document.querySelector('#eventsTable tbody').innerHTML=rows.join('');
  $('queueCount').textContent=queue.length;
@@ -596,8 +595,7 @@ function updateGraphLimitNote(){
  const el=$('graphTimeNote');if(!el)return;
  const n=graphPeriodMinutes();
  el.textContent='Escala gráfica: '+n+' min por parte / '+(2*n)+
-  ' min no total. O tempo adicional é concentrado no último minuto de cada parte. '+
-  'O cronómetro, os eventos e as estatísticas continuam a guardar os tempos reais.';
+  ' min no total. O tempo adicional é concentrado no último minuto de cada parte.';
 }
 
 const EV_CATS=['Entradas/Saídas','Golos','Remates','Recuperações/Perdas','Faltas','Defesa do GR','Desconto de tempo / Pausa'];
@@ -822,7 +820,7 @@ function refreshTimeCharts(){
  charts.min.$periodSeconds=per;
  charts.min.$totalSeconds=st.map(x=>x.sec);
  charts.min.options.scales.y.max=2*limit;
- charts.min.options.plugins.title.text='Tempo de jogo por jogador (representação até '+(2*limit)+' min)';
+ charts.min.options.plugins.title.text='Tempo de jogo por jogador';
  charts.min.update('none');
  updateEntSai();
  updateGraphLimitNote();
@@ -956,15 +954,64 @@ function download(name,text,type){
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 const fname=ext=>'futsal_'+(session.date||'jogo')+'_'+String(session.opponent||'adversario').replace(/[^\w-]+/g,'_')+'.'+ext;
-$('exportBtn').onclick=()=>{
- if(!queue.length)return toast('Sem eventos');
+const EXPORT_CATS=[
+ ['entsai','Entradas e saídas (ENT, SAI)',['ENT','SAI']],
+ ['golos','Golos e assistências (GOL, GOS, ASS)',['GOL','GOS','ASS']],
+ ['remates','Remates (RAB, RFB, RSO)',['RAB','RFB','RSO']],
+ ['recper','Recuperações e perdas (REC, PER)',['REC','PER']],
+ ['faltas','Faltas (FCO, FSO)',['FCO','FSO']],
+ ['def','Defesas do GR (DEF)',['DEF']],
+ ['pos','Posições (FIX, ALA, PIV, GR)',['P_FIXO','P_ALA','P_PIVOT','P_GR']],
+ ['aval','Avaliações, notas e fair play',null],
+ ['dt','Descontos de tempo / pausas (DT)',['DT']]
+];
+const exportCatOf=c=>{for(const [k,,codes] of EXPORT_CATS)if(codes&&codes.includes(c))return k;return'aval'};
+function exportEvents(cats,part){
  let g=0,s=0;
  const rows=[['event_id','session_id','adversario','part','client_timestamp','minute','player_id','score_marcados','score_sofridos','event_code','event_label','event_sigla','rating','rating_label','note','forma','local_x','local_y','game_marker','goal_event_id','assist_player_id']];
  for(const ev of queue){
-  if(ev.event_code==='GOL')g++;if(ev.event_code==='GOS')s++;
+  if(ev.event_code==='GOL')g++;if(ev.event_code==='GOS')s++;   // o resultado conta sempre todos os golos
+  if(!cats.includes(exportCatOf(ev.event_code))||(part&&eventPart(ev)!==part))continue;
   rows.push([ev.event_id,ev.session_id,session.opponent||'',ev.part,ev.client_timestamp,ev.minute,ev.player_id??'',g,s,ev.event_code,ev.event_label,ev.event_sigla,ev.rating,ev.rating_label,ev.note,ev.forma_label||'',ev.local_x??'',ev.local_y??'',ev.game_marker??'',ev.goal_event_id??'',ev.assist_player_id??'']);
  }
- download(fname('csv'),csvOf(rows),'text/csv;charset=utf-8');
+ return rows;
+}
+// uma linha por cada período em campo: entrada, saída e duração
+function exportIntervals(part){
+ const rows=[['player_id','nome','parte','entrada_mmss','saida_mmss','duracao_mmss','duracao_seg','em_campo_agora']];
+ const mm=t=>pad(Math.floor(t/60))+':'+pad(Math.round(t)%60);
+ ROSTER.forEach(r=>playerIntervals(r.number).filter(x=>!part||x.part===part).forEach(x=>rows.push([r.number,r.name,x.part,mm(x.start),mm(x.end),mm(x.seconds),Math.round(x.seconds),x.open?'sim':''])));
+ return rows;
+}
+$('exportBtn').onclick=()=>{
+ if(!queue.length)return toast('Sem eventos');
+ const sel=Array.isArray(OPTS.exportCats)?OPTS.exportCats:EXPORT_CATS.map(c=>c[0]);
+ const n=k=>queue.filter(e=>exportCatOf(e.event_code)===k).length;
+ showModal('Exportar eventos (CSV)',`
+  <div class="section-title" style="margin-top:0">Tipos de eventos</div>
+  ${EXPORT_CATS.map(([k,l])=>`<label class="small" style="display:flex;gap:8px;align-items:center;margin-top:6px;font-weight:400"><input type="checkbox" data-xc="${k}" ${sel.includes(k)?'checked':''}> ${l} <span class="muted">(${n(k)})</span></label>`).join('')}
+  <div class="row" style="margin-top:8px"><button id="xAll" class="btn gray" type="button" title="Seleciona todos os tipos">Todos</button><button id="xNone" class="btn gray" type="button" title="Limpa a seleção">Nenhum</button>
+   <label class="small" style="margin-left:auto" title="Exporta só os eventos desta parte">Parte <select id="xPart"><option value="0">Ambas</option><option value="1">1ª</option><option value="2">2ª</option></select></label></div>
+  <div class="row" style="justify-content:flex-end;margin-top:12px">
+   <button id="xIntervals" class="btn gray" type="button" title="Um CSV com uma linha por cada período em campo de cada jogador: entrada, saída e duração">Exportar tempos de entrada/saída</button>
+   <button id="xGo" class="btn green" type="button" title="Descarrega os eventos dos tipos selecionados">Exportar eventos selecionados</button></div>`);
+ const box=$('mBody'),cur=()=>[...box.querySelectorAll('[data-xc]')].filter(i=>i.checked).map(i=>i.dataset.xc);
+ const keep=()=>{OPTS.exportCats=cur();saveOpts()};
+ box.querySelectorAll('[data-xc]').forEach(i=>i.onchange=keep);
+ $('xAll').onclick=()=>{box.querySelectorAll('[data-xc]').forEach(i=>i.checked=true);keep()};
+ $('xNone').onclick=()=>{box.querySelectorAll('[data-xc]').forEach(i=>i.checked=false);keep()};
+ $('xGo').onclick=()=>{
+  const cats=cur(),part=+$('xPart').value;if(!cats.length)return toast('Escolhe pelo menos um tipo de evento');
+  const rows=exportEvents(cats,part);if(rows.length<2)return toast('Não há eventos desses tipos'+(part?' na '+part+'ª parte':''));
+  const tag=cats.length===EXPORT_CATS.length?'':'_'+cats.join('-');
+  download(fname('csv').replace(/\.csv$/,'_'+(part?'p'+part+'_':'')+'eventos'+tag+'.csv'),csvOf(rows),'text/csv;charset=utf-8');
+  $('modal').style.display='none';toast((rows.length-1)+' eventos exportados');
+ };
+ $('xIntervals').onclick=()=>{
+  const part=+$('xPart').value,rows=exportIntervals(part);if(rows.length<2)return toast('Ainda não há períodos em campo');
+  download(fname('csv').replace(/\.csv$/,'_'+(part?'p'+part+'_':'')+'tempos_entrada_saida.csv'),csvOf(rows),'text/csv;charset=utf-8');
+  $('modal').style.display='none';toast((rows.length-1)+' períodos exportados');
+ };
 };
 $('exportStatsBtn').onclick=()=>{
  if(!ROSTER.length)return toast('Sem jogadores');
@@ -1113,6 +1160,7 @@ const FORMAS=[['ATQ','Ataque organizado'],['CTR','Contra-ataque'],['PRE','Recupe
 const formaLabel=c=>(FORMAS.find(f=>f[0]===c)||[])[1]||'';
 // campo 40x20 (equipa a atacar sempre para a direita). pts: [{x,y,s:1 marcado | 0 sofrido}]
 function goalMapSVG(pts,attrs='',heat=''){
+ const heats=[].concat(heat||[]).filter(Boolean);
  const L='stroke="#111" stroke-width=".14" fill="none"';
  const dot=p=>{
   const c=p.c||(p.s?'GOL':'GOS'),x=p.x,y=p.y;
@@ -1124,7 +1172,7 @@ function goalMapSVG(pts,attrs='',heat=''){
   return`<polygon points="${x},${y-.6} ${x+.6},${y} ${x},${y+.6} ${x-.6},${y}" fill="#111" stroke="#FFD400" stroke-width=".15" opacity=".9"/>`;
  };
  const dots=pts.map(dot).join('');
- return`<svg viewBox="-1 -1.5 42 23" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-width:760px;display:block;border:1px solid var(--line);border-radius:6px;background:#fffdf0" ${attrs}><rect x="-1" y="-1.5" width="42" height="23" fill="#fffdf0"/>${heat?`<image href="${heat}" x="0" y="0" width="40" height="20" preserveAspectRatio="none"/>`:''}<rect x="0" y="0" width="40" height="20" ${L}/><line x1="20" y1="0" x2="20" y2="20" ${L}/><circle cx="20" cy="10" r="3" ${L}/><path d="M0 2.5A6 6 0 0 1 6 8.5L6 11.5A6 6 0 0 1 0 17.5" ${L}/><path d="M40 2.5A6 6 0 0 0 34 8.5L34 11.5A6 6 0 0 0 40 17.5" ${L}/><rect x="-0.9" y="8.5" width=".9" height="3" ${L}/><rect x="40" y="8.5" width=".9" height="3" ${L}/>${dots}<text x="20" y="-0.35" font-size="1" text-anchor="middle" font-family="Arial">Atacamos →</text></svg>`;
+ return`<svg viewBox="-1 -1.5 42 23" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-width:760px;display:block;border:1px solid var(--line);border-radius:6px;background:#fffdf0" ${attrs}><rect x="-1" y="-1.5" width="42" height="23" fill="#fffdf0"/>${heats.map(h=>`<image href="${h}" x="0" y="0" width="40" height="20" preserveAspectRatio="none"/>`).join('')}<rect x="0" y="0" width="40" height="20" ${L}/><line x1="20" y1="0" x2="20" y2="20" ${L}/><circle cx="20" cy="10" r="3" ${L}/><path d="M0 2.5A6 6 0 0 1 6 8.5L6 11.5A6 6 0 0 1 0 17.5" ${L}/><path d="M40 2.5A6 6 0 0 0 34 8.5L34 11.5A6 6 0 0 0 40 17.5" ${L}/><rect x="-0.9" y="8.5" width=".9" height="3" ${L}/><rect x="40" y="8.5" width=".9" height="3" ${L}/>${dots}<text x="20" y="-0.35" font-size="1" text-anchor="middle" font-family="Arial">Atacamos →</text></svg>`;
 }
 function goalAssistEvent(goal){
  if(!goal||goal.event_code!=='GOL')return null;
@@ -1217,7 +1265,7 @@ function shotLoc(ev,force){
 }
 /* ---------- Opções de registo ---------- */
 const OPTS_DEF={shotsFor:true,shotsAgainst:true,goalsFor:true,goalsAgainst:true,assists:true,goalAsk:'both',mapCodes:['GOL','GOS','RAB','RFB','RSO','DEF'],mapView:'pts'};
-function loadOpts(){const o={...OPTS_DEF,...load(K.o,{})};if(!Array.isArray(o.mapCodes))o.mapCodes=OPTS_DEF.mapCodes.slice();if(!['pts','off','def'].includes(o.mapView))o.mapView='pts';return o}
+function loadOpts(){const o={...OPTS_DEF,...load(K.o,{})};if(!Array.isArray(o.mapCodes))o.mapCodes=OPTS_DEF.mapCodes.slice();if(!['pts','off','def','both'].includes(o.mapView))o.mapView='pts';return o}
 let OPTS=loadOpts();
 function saveOpts(){try{localStorage.setItem(K.o,JSON.stringify(OPTS))}catch{}updOptsLabel()}
 function updOptsLabel(){
@@ -1227,8 +1275,7 @@ function updOptsLabel(){
 function openOpts(){
  const cb=(k,txt)=>`<label class="small" style="display:flex;gap:8px;align-items:center;margin-top:8px;font-weight:400"><input type="checkbox" data-opt="${k}" ${OPTS[k]?'checked':''}> ${txt}</label>`;
  showModal('Opções de registo',`
-  <div class="small">Escolhe o que a app te pergunta ao registar. Podes sempre preencher depois, na tabela de eventos (botões ℹ e 📍). As opções ficam guardadas neste browser.</div>
-  <div class="section-title" style="margin-top:12px">Remates</div>
+  <div class="section-title" style="margin-top:0">Remates</div>
   ${cb('shotsFor','Perguntar o <strong>local</strong> dos remates à baliza e fora')}
   ${cb('shotsAgainst','Perguntar o <strong>local</strong> dos remates sofridos')}
   <div class="section-title" style="margin-top:12px">Golos</div>
@@ -1251,9 +1298,9 @@ function buildMapFilter(){
  $('mapFilter').innerHTML=`<div class="small"><strong>Mostrar no mapa</strong></div>
   <div class="row" style="margin-top:4px;gap:12px">${MAP_TYPES.map(([c,l])=>`<label class="small" title="${l}" style="font-weight:400;display:flex;gap:4px;align-items:center;white-space:nowrap"><input type="checkbox" data-mc="${c}" ${chk.includes(c)?'checked':''}> <strong>${c}</strong></label>`).join('')}</div>
   <div class="row" style="margin-top:6px;flex-wrap:nowrap">
-   <label class="small" style="font-weight:400;display:flex;gap:4px;align-items:center;white-space:nowrap">Vista <select id="mapViewSel" style="padding:4px"><option value="pts">Pontos</option><option value="off">Calor ofensivo</option><option value="def">Calor defensivo</option></select></label>
-   <label class="small" style="font-weight:400;display:flex;gap:4px;align-items:center;white-space:nowrap">Parte <select id="mapPartSel" style="padding:4px"><option value="0">Ambas</option><option value="1">1ª</option><option value="2">2ª</option></select></label>
-   <label class="small" style="font-weight:400;display:flex;gap:4px;align-items:center;flex:1;min-width:0">Jogador <select id="mapPlayerSel" style="padding:4px;flex:1;min-width:0;max-width:100%"><option value="">Todos</option><option value="team">Equipa</option></select></label>
+   <label class="small" title="Pontos, calor ofensivo (amarelo), calor defensivo (preto) ou os dois em simultâneo" style="font-weight:400;display:flex;gap:4px;align-items:center;white-space:nowrap">Vista <select id="mapViewSel" style="padding:4px"><option value="pts">Pontos</option><option value="off">Calor ofensivo</option><option value="def">Calor defensivo</option><option value="both">Calor ofensivo + defensivo</option></select></label>
+   <label class="small" title="Filtra o mapa por parte" style="font-weight:400;display:flex;gap:4px;align-items:center;white-space:nowrap">Parte <select id="mapPartSel" style="padding:4px"><option value="0">Ambas</option><option value="1">1ª</option><option value="2">2ª</option></select></label>
+   <label class="small" title="Filtra o mapa por jogador (Equipa = ações sem jogador)" style="font-weight:400;display:flex;gap:4px;align-items:center;flex:1;min-width:0">Jogador <select id="mapPlayerSel" style="padding:4px;flex:1;min-width:0;max-width:100%"><option value="">Todos</option><option value="team">Equipa</option></select></label>
   </div>`;
  $('mapViewSel').value=OPTS.mapView;
 }
@@ -1286,10 +1333,10 @@ function defPos(e){
  return[+Math.min(5.2,Math.max(0.8,3+r*Math.cos(a))).toFixed(2),+Math.min(12.5,Math.max(7.5,10+1.2*r*Math.sin(a))).toFixed(2)];
 }
 const atLoc=e=>e.local_x!=null?[e.local_x,e.local_y]:(e.event_code==='DEF'?defPos(e):null);
-let heatCache={key:'',url:''};
-function heatURL(pts,kind){
- const key=kind+'|'+pts.map(p=>p.join(',')).join(';');
- if(heatCache.key===key)return heatCache.url;
+const heatCache=new Map();
+function heatURL(pts,kind,scale=1){
+ const key=kind+'|'+scale+'|'+pts.map(p=>p.join(',')).join(';');
+ if(heatCache.has(key))return heatCache.get(key);
  const{g,W,H,max}=heatGrid(pts);let url='';
  if(max){
   const cv=document.createElement('canvas');cv.width=W;cv.height=H;
@@ -1298,11 +1345,12 @@ function heatURL(pts,kind){
    const t=Math.pow(g[k]/max,.7),o=k*4;
    if(kind==='off'){im.data[o]=255;im.data[o+1]=Math.round(215-175*t);im.data[o+2]=0}       // amarelo -> laranja
    else{im.data[o]=17;im.data[o+1]=17;im.data[o+2]=17}                                     // preto
-   im.data[o+3]=Math.round(Math.min(1,t*1.1)*(kind==='off'?215:185));
+   im.data[o+3]=Math.round(Math.min(1,t*1.1)*(kind==='off'?215:185)*scale);
   }
   c.putImageData(im,0,0);url=cv.toDataURL('image/png');
  }
- heatCache={key,url};return url;
+ if(heatCache.size>=12)heatCache.delete(heatCache.keys().next().value);
+ heatCache.set(key,url);return url;
 }
 function setHTML(id,h){if(lastGI[id]!==h){$(id).innerHTML=h;lastGI[id]=h}}
 let mapPlayersSig='';
@@ -1320,7 +1368,7 @@ function renderGoalsInfo(){
  const sig=ROSTER.map(r=>r.number+r.name).join('|');
  if(sig!==mapPlayersSig){const cur=$('mapPlayerSel').value;$('mapPlayerSel').innerHTML='<option value="">Todos</option><option value="team">Equipa</option>'+ROSTER.map(r=>`<option value="${r.number}">${r.number} - ${esc(r.name)}</option>`).join('');$('mapPlayerSel').value=cur;mapPlayersSig=sig}
  const view=OPTS.mapView||'pts',HEAT={off:['GOL','RAB','RFB'],def:['GOS','RSO','DEF']};
- const part=+$('mapPartSel').value,pl=$('mapPlayerSel').value,codes=view==='pts'?OPTS.mapCodes:HEAT[view];
+ const part=+$('mapPartSel').value,pl=$('mapPlayerSel').value,codes=view==='pts'?OPTS.mapCodes:view==='both'?[...HEAT.off,...HEAT.def]:HEAT[view];
  const located=queue.filter(e=>[...SC,'DEF'].includes(e.event_code)&&atLoc(e));
  const shown=located.filter(e=>codes.includes(e.event_code)&&(!part||e.part===part)&&(pl===''||(pl==='team'?e.player_id==null:String(e.player_id)===pl)));
  // nas vistas de calor os tipos são fixos (ofensivo/defensivo): as caixas ficam inativas
@@ -1329,6 +1377,11 @@ function renderGoalsInfo(){
  if(view==='pts'){
   setHTML('giMap',goalMapSVG(shown.map(e=>{const [x,y]=atLoc(e);return{x,y,c:e.event_code}})));
   setHTML('giMapNote',`A mostrar <strong>${shown.length}</strong> de ${located.length} pontos · <strong>GOL</strong> círculo grande amarelo · <strong>GOS</strong> círculo grande preto · <strong>RAB</strong> círculo pequeno · <strong>RFB</strong> ✕ · <strong>RSO</strong> ◆ · <strong>DEF</strong> ■ (na área)`);
+ }else if(view==='both'){
+  const offP=shown.filter(e=>HEAT.off.includes(e.event_code)),defP=shown.filter(e=>HEAT.def.includes(e.event_code));
+  setHTML('giMap',goalMapSVG([],'',[heatURL(defP.map(atLoc),'def',.9),heatURL(offP.map(atLoc),'off',.8)]));
+  const sw=c=>`<span style="display:inline-block;width:10px;height:10px;background:${c};border:1px solid #111;vertical-align:middle"></span>`;
+  setHTML('giMapNote',`${sw('#FFD400')} <strong>Beira-Mar</strong> (GOL, RAB, RFB): <strong>${offP.length}</strong> ações · ${sw('#111')} <strong>Adversário</strong> (GOS, RSO, DEF): <strong>${defP.length}</strong> ações · cada cor é relativa ao seu próprio máximo`);
  }else{
   setHTML('giMap',goalMapSVG([],'',heatURL(shown.map(atLoc),view)));
   setHTML('giMapNote',`Mapa de calor <strong>${view==='off'?'ofensivo':'defensivo'}</strong> (${HEAT[view].filter(c=>c!=='DEF'||shown.some(e=>e.event_code==='DEF')).join(', ')}): <strong>${shown.length}</strong> ações com local · cor mais forte = mais ações nessa zona (relativo ao máximo)`);
