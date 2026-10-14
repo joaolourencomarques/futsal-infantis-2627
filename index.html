@@ -137,7 +137,7 @@ canvas{width:100%!important;height:300px!important}
     <div class="summary-box"><div class="small">Parte atual</div><div id="livePart" class="big">—</div></div>
     <div class="summary-box"><div class="small">Tempo decorrido</div><div id="liveElapsedPart" class="big">00:00</div></div>
     <div class="summary-box"><div class="small">Resultado</div><div id="liveScore" class="big">0 - 0</div></div>
-    <div class="summary-box" id="foulBox"><div class="small">Faltas da parte</div><div id="liveFouls" class="big">0</div></div>
+    <div class="summary-box" id="foulBox" title="Faltas da parte atual: sofridas (FSO) - cometidas (FCO). A partir da 5.ª falta cometida, cada nova falta dá livre direto ao adversário"><div class="small">Faltas da parte <span style="font-weight:400">(sofridas - cometidas)</span></div><div id="liveFouls" class="big">0 - 0</div><div id="liveFoulsNote" class="small"></div></div>
   </div>
 </div>
 
@@ -163,7 +163,6 @@ canvas{width:100%!important;height:300px!important}
     <button class="team-btn" data-team="RSO" type="button" title="Regista um remate sofrido (equipa)">Remate sofrido</button>
   </div>
   <div id="onField"></div>
-  <div class="small" style="margin-top:8px"><strong>Tempo em jogo</strong>: total acumulado | <strong>Na quadra</strong>: entrada atual. Para substituir: "Trocar" no jogador que sai e depois "Entrar" no que entra. Esqueceste-te de uma troca? Usa "Corrigir substituição" e indica o minuto real.</div>
 </div>
 
 <div class="card">
@@ -202,7 +201,7 @@ canvas{width:100%!important;height:300px!important}
     </div>
   </div>
   <div id="chartEntSaiWrap" class="dyn-chart-wrap" style="margin-top:8px"><canvas id="chartEntSai"></canvas></div>
-  <div id="graphTimeNote" class="small" style="margin-top:8px"></div>
+  <div style="text-align:right;margin-top:6px"><span id="graphTimeNote" class="small muted" style="cursor:help;font-size:16px">ⓘ</span></div>
 </div>
 
 <div class="card">
@@ -244,7 +243,7 @@ canvas{width:100%!important;height:300px!important}
   <div class="chart-card" style="margin-top:8px;min-height:460px"><canvas id="chartEventsTimeline"></canvas></div>
 </div>
 
-<footer style="text-align:center;margin:18px 0 10px"><button id="legendBtn" class="btn gray" title="Mostra o significado de cada sigla de evento" type="button">Legenda de eventos</button></footer>
+<footer style="text-align:center;margin:18px 0 10px"><button id="legendBtn" class="btn gray" title="Significado das siglas e guia de utilização da plataforma" type="button">Legenda de eventos e guia de utilização</button></footer>
 
 <script>
 /* ===== ÚNICA LINHA A ALTERAR PARA OUTRO ESCALÃO ===== */
@@ -527,7 +526,7 @@ function renderQueue(){
   const p=ev.player_id==null?null:ROSTER.find(x=>x.number===ev.player_id);
   rows.push(`<tr><td>${i+1}</td><td>${ev.minute}</td><td>${ev.part}</td><td>${ev.player_id==null?'(equipa)':esc(ev.player_id+' - '+(p?p.name:''))}</td>
    <td>${esc(ev.event_label)}${ev.forma_label?' — '+esc(ev.forma_label):''}${ev.local_x!=null&&!ev.forma_label?' 📍':''}</td><td>${esc(ev.event_sigla)}</td><td>${esc(ev.rating_label)}</td><td>${esc(ev.note)}</td>
-   <td>${esc((ev.client_timestamp||'').slice(11,19))}</td><td style="white-space:nowrap">${['GOL','GOS','RAB','RFB','RSO'].includes(ev.event_code)?`<button class="btn gray goalInfoBtn" data-i="${i}" type="button" title="${ev.event_code==='GOL'||ev.event_code==='GOS'?'Forma e local do golo':'Local do remate'}">${ev.event_code==='GOL'||ev.event_code==='GOS'?'ℹ':'📍'}</button> `:''}<button class="btn gray editTime" data-i="${i}" type="button" title="Corrigir o tempo deste evento">⏱</button> <button class="btn warn delEv" data-i="${i}" type="button" title="Apagar este evento">x</button></td></tr>`);
+   <td>${esc((ev.client_timestamp||'').slice(11,19))}</td><td style="white-space:nowrap">${['GOL','GOS','RAB','RFB','RSO'].includes(ev.event_code)?`<button class="btn gray goalInfoBtn" data-i="${i}" type="button" title="${ev.event_code==='GOL'||ev.event_code==='GOS'?'Forma e local do golo':'Local do remate'}">${ev.event_code==='GOL'||ev.event_code==='GOS'?'ℹ':'📍'}</button> `:''}<button class="btn gray editTime" data-i="${i}" type="button" title="${['ENT','SAI'].includes(ev.event_code)?'Corrigir o tempo desta substituição (quem sai e quem entra mudam juntos)':'Corrigir o tempo deste evento'}">⏱</button> <button class="btn warn delEv" data-i="${i}" type="button" title="Apagar este evento">x</button></td></tr>`);
  }
  document.querySelector('#eventsTable tbody').innerHTML=rows.join('');
  $('queueCount').textContent=queue.length;
@@ -539,9 +538,10 @@ function renderFilter(){
 }
 function renderLive(){
  const cp=session.currentPart||null,pt=cp?cp+'ª Parte':'—',el=cp?fmt(partElapsed(cp)):'00:00',sc=score(),st=sc.marcados+' - '+sc.sofridos;
- const fouls=queue.filter(e=>e.event_code==='FCO'&&e.part===(cp||1)).length;
+ const fp=e=>(typeof eventPart==='function'?eventPart(e):e.part)===(cp||1),fouls=queue.filter(e=>e.event_code==='FCO'&&fp(e)).length,foulsS=queue.filter(e=>e.event_code==='FSO'&&fp(e)).length;
  $('livePart').textContent=pt;$('liveElapsedPart').textContent=el;$('liveScore').textContent=st;
- $('liveFouls').textContent=fouls+(fouls>=5?' (livres diretos)':'');
+ $('liveFouls').textContent=foulsS+' - '+fouls;
+ $('liveFoulsNote').textContent=[fouls>=5?'livres diretos contra':'',foulsS>=5?'livres diretos a favor':''].filter(Boolean).join(' · ');
  $('foulBox').classList.toggle('foul',fouls>=5);
  updatePartButtons();
 }
@@ -594,8 +594,9 @@ function graphBucket(ev){
 function updateGraphLimitNote(){
  const el=$('graphTimeNote');if(!el)return;
  const n=graphPeriodMinutes();
- el.textContent='Escala gráfica: '+n+' min por parte / '+(2*n)+
-  ' min no total. O tempo adicional é concentrado no último minuto de cada parte.';
+ const t='Escala gráfica: '+n+' min por parte / '+(2*n)+' min no total. O tempo adicional é concentrado no último minuto de cada parte.';
+ el.title=t;
+ ['chartPlayerMinutes','chartIntensity','chartEntSai','chartEventsTimeline'].forEach(id=>{const c=$(id);if(c)c.title=t});
 }
 
 const EV_CATS=['Entradas/Saídas','Golos','Remates','Recuperações/Perdas','Faltas','Defesa do GR','Desconto de tempo / Pausa'];
@@ -860,12 +861,45 @@ function pick(title,opts,cb){
  opts.forEach(o=>{const b=document.createElement('button');b.className='btn gray';b.style.margin='4px';b.textContent=o.l;b.onclick=()=>{$('modal').style.display='none';cb(o.v)};$('mBody').appendChild(b)});
 }
 $('mClose').onclick=()=>$('modal').style.display='none';
+const GUIDE=[
+ ['1. Essencial — durante o jogo','Precisas disto em todos os jogos.',[
+  ['Informação do jogo','Na secção 2 preenche o adversário, a data, a competição e a duração de cada parte.'],
+  ['Convocados','Na secção 3 aparecem todos os atletas. Usa <strong>Retirar</strong> nos que não estão convocados (e <strong>Repor</strong> para voltar atrás).'],
+  ['Cinco iniciais e relógio','Carrega em <strong>Entrar</strong> em cinco jogadores e depois em <strong>Início 1ª Parte</strong>. O relógio só arranca com jogadores em campo.'],
+  ['Registar ações','Nos cartões dos jogadores em campo (secção 4) carrega na sigla: GOL, RAB, RFB, REC, PER, ASS, FCO, FSO, FAI. Ações do adversário/guarda-redes: <strong>Golo sofrido</strong>, <strong>Defesa do GR</strong>, <strong>Remate sofrido</strong>.'],
+  ['Substituições','<strong>Trocar</strong> no jogador que sai e depois <strong>Entrar</strong> no que entra. <strong>Sair</strong> só tira o jogador.'],
+  ['Partes','<strong>Fim 1ª Parte</strong> → <strong>Início 2ª Parte</strong> → <strong>Fim 2ª Parte</strong>. <strong>Pausar/Retomar</strong> para tempo parado.'],
+  ['Guardar','No fim (ou a meio, por segurança) carrega em <strong>Guardar jogo</strong>: descarrega um ficheiro .json com tudo.']]],
+ ['2. Importante — corrigir erros','Para quando algo foi registado mal ou esquecido.',[
+  ['Corrigir substituição','Esqueceste-te de uma troca? Indica quem sai, quem entra e o minuto real. É sempre em par; só os cinco iniciais, as saídas no fim da parte ou uma expulsão podem ir sozinhos, marcando "Sem substituto".'],
+  ['Corrigir o tempo de um evento','Na tabela de eventos (secção 7), botão <strong>⏱</strong>. Numa entrada/saída de uma troca, o tempo muda para quem sai e quem entra ao mesmo tempo.'],
+  ['Apagar um evento','Botão <strong>x</strong> na tabela de eventos. Numa troca, anula a substituição inteira (as duas metades).'],
+  ['Detalhes de golos e remates','Botões <strong>ℹ</strong> (forma e local do golo) e <strong>📍</strong> (local do remate) na tabela de eventos.'],
+  ['Opções de registo','<strong>⚙ Opções de registo</strong> define o que a app pergunta ao registar golos, remates e assistências. Desliga para registar mais depressa.'],
+  ['Limpar campo','Tira todos os jogadores do campo de uma vez (regista as saídas).']]],
+ ['3. Análise — depois do jogo','Lê o jogo a partir dos dados.',[
+  ['Resumo do jogo','Golos marcados e sofridos por forma, e remates com local.'],
+  ['Mapa do campo','Escolhe o que mostrar (GOL, GOS, RAB, RFB, RSO, DEF), a parte e o jogador. Em <strong>Vista</strong>: pontos, calor ofensivo (amarelo), calor defensivo (preto) ou os dois.'],
+  ['Estatísticas por jogador','Tempo em jogo, golos, assistências, remates, recuperações, perdas e faltas.'],
+  ['Gráficos','Tempo por jogador, principais ações, intensidade ofensiva vs defensiva, entradas e saídas, radar para comparar jogadores e eventos ao longo do tempo.'],
+  ['Exportar','<strong>Exportar estatísticas CSV</strong> e <strong>Exportar Eventos CSV</strong> (escolhes os tipos de eventos e a parte). Abre no Excel.']]],
+ ['4. Complementar','Útil, mas opcional.',[
+  ['Registo de outros eventos','Secção 6: avaliações (posicionamento, atitude, intensidade…) e notas, para um jogador ou para a equipa.'],
+  ['Abrir jogo','Carrega um .json guardado para rever ou continuar um jogo.'],
+  ['Novo jogo','Apaga os eventos e o relógio (o plantel mantém-se). Guarda antes!'],
+  ['Dados no browser','Tudo fica guardado neste browser: recarregar a página não apaga o jogo. Noutro computador, usa Guardar/Abrir jogo.'],
+  ['Ajuda rápida','Passa o rato por cima dos botões para ver o que fazem.']]]
+];
 $('legendBtn').onclick=()=>{
  const items=Object.entries(eventMeta).map(([k,v])=>({k,...v})).sort((a,b)=>a.type-b.type||a.sigla.localeCompare(b.sigla));
- let t=null,h='';
- items.forEach(it=>{if(it.type!==t){t=it.type;h+=`<div style="margin-top:8px"><strong>Tipo ${t}</strong></div>`}
-  h+=`<div class="lrow"><div style="width:28px;height:18px;background:${typeColors[it.type]};border-radius:4px"></div><div><strong>${it.sigla}</strong> — ${esc(it.label)}</div></div>`});
- showModal('Legenda de Eventos',h);
+ let t=null,leg='';
+ items.forEach(it=>{if(it.type!==t){t=it.type;leg+=`<div style="margin-top:8px"><strong>Tipo ${t}</strong></div>`}
+  leg+=`<div class="lrow"><div style="width:28px;height:18px;background:${typeColors[it.type]};border-radius:4px"></div><div><strong>${it.sigla}</strong> — ${esc(it.label)}</div></div>`});
+ const guia=`<div class="small" style="margin-bottom:6px">Esta plataforma serve para registar, ao vivo, tudo o que acontece num jogo de futsal (quem joga, quanto tempo, golos, remates, faltas…) e transformar esses registos em estatísticas, mapas e gráficos para analisar a equipa e cada atleta. As funcionalidades estão ordenadas por importância: começa pelo nível 1.</div>`+
+  GUIDE.map(([h,sub,rows])=>`<div class="section-title" style="margin:12px 0 2px">${h}</div><div class="small muted">${sub}</div>`+rows.map(([k,v])=>`<div class="small" style="margin-top:5px"><strong>${k}</strong> — ${v}</div>`).join('')).join('');
+ showModal('Legenda e guia',`<div class="row" style="margin:0 0 8px"><button id="tabLeg" class="btn" type="button" title="Significado de cada sigla">Legenda de eventos</button><button id="tabGuia" class="btn gray" type="button" title="Para que serve a plataforma e como se usa">Como usar a plataforma</button></div><div id="tabBody"></div>`);
+ const show=g=>{$('tabBody').innerHTML=g?guia:leg;$('tabLeg').className='btn'+(g?' gray':'');$('tabGuia').className='btn'+(g?'':' gray')};
+ $('tabLeg').onclick=()=>show(false);$('tabGuia').onclick=()=>show(true);show(false);
 };
 
 /* ---------- Ações no campo ---------- */
@@ -875,8 +909,10 @@ function enter(num){
  if(swapIdx!==null){
   const old=onField[swapIdx];
   if(old){
+   const sid='sub_'+Math.random().toString(36).slice(2,9),k=queue.length;
    add(old.number,'SAI');onField[swapIdx]={number:num,position:old.position};add(num,'ENT');
    if(old.position)add(num,posCode[old.position]);
+   queue.slice(k).forEach(e=>e.sub_id=sid);
    swapIdx=null;saveAll();return toast('Troca feita');
   }
   swapIdx=null;
@@ -897,7 +933,7 @@ document.addEventListener('click',e=>{
  if(b=t.closest('.swapBtn')){const i=+b.dataset.idx;swapIdx=swapIdx===i?null:i;renderRoster();renderField();if(swapIdx!==null)toast('Escolhe nos convocados quem entra');return}
  if(b=t.closest('.slotRemove')){const i=+b.dataset.idx,en=onField[i];if(en)add(en.number,'SAI');onField[i]=null;swapIdx=null;saveAll();return}
  if(b=t.closest('.event-btn')){const n=+b.dataset.num,c=b.dataset.code;if(c==='GOL')goal(n);else{add(n,c);saveAll();if(c==='RAB'||c==='RFB')shotLoc(queue[queue.length-1])}return}
- if(b=t.closest('.delEv')){const i=+b.dataset.i;if(confirm('Anular o evento #'+(i+1)+'?'))delEvent(i);return}
+ if(b=t.closest('.delEv')){const i=+b.dataset.i;if(queue[i]&&isMove(queue[i].event_code))return deleteMove(queue[i]);if(confirm('Anular o evento #'+(i+1)+'?'))delEvent(i);return}
  if(b=t.closest('[data-team]')){const tc=b.dataset.team;add(null,tc);saveAll();if(tc==='GOS')goalInfo(queue[queue.length-1]);else if(tc==='RSO')shotLoc(queue[queue.length-1]);return}
 });
 $('clearSlots').onclick=()=>{
@@ -976,13 +1012,6 @@ function exportEvents(cats,part){
  }
  return rows;
 }
-// uma linha por cada período em campo: entrada, saída e duração
-function exportIntervals(part){
- const rows=[['player_id','nome','parte','entrada_mmss','saida_mmss','duracao_mmss','duracao_seg','em_campo_agora']];
- const mm=t=>pad(Math.floor(t/60))+':'+pad(Math.round(t)%60);
- ROSTER.forEach(r=>playerIntervals(r.number).filter(x=>!part||x.part===part).forEach(x=>rows.push([r.number,r.name,x.part,mm(x.start),mm(x.end),mm(x.seconds),Math.round(x.seconds),x.open?'sim':''])));
- return rows;
-}
 $('exportBtn').onclick=()=>{
  if(!queue.length)return toast('Sem eventos');
  const sel=Array.isArray(OPTS.exportCats)?OPTS.exportCats:EXPORT_CATS.map(c=>c[0]);
@@ -993,7 +1022,6 @@ $('exportBtn').onclick=()=>{
   <div class="row" style="margin-top:8px"><button id="xAll" class="btn gray" type="button" title="Seleciona todos os tipos">Todos</button><button id="xNone" class="btn gray" type="button" title="Limpa a seleção">Nenhum</button>
    <label class="small" style="margin-left:auto" title="Exporta só os eventos desta parte">Parte <select id="xPart"><option value="0">Ambas</option><option value="1">1ª</option><option value="2">2ª</option></select></label></div>
   <div class="row" style="justify-content:flex-end;margin-top:12px">
-   <button id="xIntervals" class="btn gray" type="button" title="Um CSV com uma linha por cada período em campo de cada jogador: entrada, saída e duração">Exportar tempos de entrada/saída</button>
    <button id="xGo" class="btn green" type="button" title="Descarrega os eventos dos tipos selecionados">Exportar eventos selecionados</button></div>`);
  const box=$('mBody'),cur=()=>[...box.querySelectorAll('[data-xc]')].filter(i=>i.checked).map(i=>i.dataset.xc);
  const keep=()=>{OPTS.exportCats=cur();saveOpts()};
@@ -1006,11 +1034,6 @@ $('exportBtn').onclick=()=>{
   const tag=cats.length===EXPORT_CATS.length?'':'_'+cats.join('-');
   download(fname('csv').replace(/\.csv$/,'_'+(part?'p'+part+'_':'')+'eventos'+tag+'.csv'),csvOf(rows),'text/csv;charset=utf-8');
   $('modal').style.display='none';toast((rows.length-1)+' eventos exportados');
- };
- $('xIntervals').onclick=()=>{
-  const part=+$('xPart').value,rows=exportIntervals(part);if(rows.length<2)return toast('Ainda não há períodos em campo');
-  download(fname('csv').replace(/\.csv$/,'_'+(part?'p'+part+'_':'')+'tempos_entrada_saida.csv'),csvOf(rows),'text/csv;charset=utf-8');
-  $('modal').style.display='none';toast((rows.length-1)+' períodos exportados');
  };
 };
 $('exportStatsBtn').onclick=()=>{
@@ -1061,6 +1084,59 @@ function mkAt(pl,code,part,sec,note){
   minute:Math.floor(sec/60),game_marker:markerFor(part,sec),player_id:pl,event_code:code,event_label:m.label||code,event_sigla:m.sigla||code,
   note:note||'',rating:'',rating_label:'',corrigido:true};
 }
+/* ----- Substituições sempre em par: quem sai e quem entra mudam juntos ----- */
+const isMove=c=>c==='ENT'||c==='SAI';
+const nmPl=n=>{const r=ROSTER.find(x=>x.number===Number(n));return n+(r?' '+r.name:'')};
+// o outro lado da troca: pelo sub_id; em jogos antigos, a entrada/saída registada logo a seguir/antes no mesmo segundo
+function subPartner(ev){
+ if(!ev||!isMove(ev.event_code))return null;
+ const want=ev.event_code==='ENT'?'SAI':'ENT';
+ if(ev.sub_id)return queue.find(x=>x!==ev&&x.sub_id===ev.sub_id&&x.event_code===want)||null;
+ const i=queue.indexOf(ev),near=ev.event_code==='SAI'?queue.slice(i+1,i+3):queue.slice(Math.max(0,i-2),i).reverse();
+ const c=near.find(x=>isMove(x.event_code));
+ return c&&c.event_code===want&&!c.sub_id&&Number(c.player_id)!==Number(ev.player_id)&&eventPart(c)===eventPart(ev)&&Math.abs(Number(c.game_marker)-Number(ev.game_marker))<=1?c:null;
+}
+// posição atribuída a quem entrou na troca (registada no mesmo instante)
+function subPosition(ent){
+ if(!ent)return null;
+ if(ent.sub_id)return queue.find(x=>x.sub_id===ent.sub_id&&codePos[x.event_code])||null;
+ const n=queue[queue.indexOf(ent)+1];
+ return n&&codePos[n.event_code]&&n.player_id===ent.player_id&&Math.abs(Number(n.game_marker)-Number(ent.game_marker))<=1?n:null;
+}
+function restoreQueue(backup,olds){queue=backup;olds.forEach(([e,o])=>{Object.keys(e).forEach(k=>{if(!(k in o))delete e[k]});Object.assign(e,o)})}
+function openMoveTime(ev){
+ const pr=subPartner(ev),part=eventPart(ev);
+ const sai=ev.event_code==='SAI'?ev:pr,ent=ev.event_code==='ENT'?ev:pr;
+ showModal(pr?'Corrigir o tempo da substituição':'Corrigir o tempo da '+(ev.event_code==='ENT'?'entrada':'saída'),`
+  ${pr?`<div class="small">Esta ${ev.event_code==='ENT'?'entrada':'saída'} faz par com a ${ev.event_code==='ENT'?'saída':'entrada'} do substituto. O novo tempo aplica-se aos dois:</div>
+   <div style="margin:8px 0"><strong>Sai ${esc(nmPl(sai.player_id))}</strong> · <strong>Entra ${esc(nmPl(ent.player_id))}</strong></div>`
+  :`<div class="small">${ev.event_code==='ENT'?'Entrada':'Saída'} de <strong>${esc(nmPl(ev.player_id))}</strong> sem substituto associado. Só pode ser alterada sozinha se não houve troca.</div>
+   <label class="small" style="display:flex;gap:8px;align-items:center;margin:8px 0;font-weight:400" title="Marca só se não houve ninguém a sair/entrar no lugar deste jogador"><input type="checkbox" id="mtAlone"> Sem substituto (início/fim de parte ou expulsão)</label>`}
+  <label class="small">Tempo da ${part}ª parte (mm:ss) <input id="mtTime" style="width:90px" value="${mmss(Math.max(0,Math.round(eventSecond(ev,part))))}"></label>
+  <div style="margin-top:10px"><button id="mtApply" class="btn green" type="button">Aplicar</button></div>`);
+ $('mtApply').onclick=()=>{
+  if(!pr&&!$('mtAlone').checked)return toast('Sem par: confirma "Sem substituto" ou usa "Corrigir substituição" para registar a troca');
+  const sec=parseMMSS($('mtTime').value);if(sec==null)return toast('Formato inválido. Usa mm:ss, por exemplo 12:30');
+  if(sec>partElapsed(part)+1)return toast('Esse tempo ainda não aconteceu na '+part+'ª parte');
+  const moves=[sai,ent,subPosition(ent)].filter(Boolean),backup=queue.slice(),olds=moves.map(e=>[e,{...e}]),before=timelineError();
+  moves.forEach(e=>queue.splice(queue.indexOf(e),1));
+  moves.forEach(e=>Object.assign(e,{part,minute:Math.floor(sec/60),game_marker:markerFor(part,sec),client_timestamp:stampFor(part,sec),corrigido:true}));
+  insertSorted(moves);
+  const err=timelineError();
+  if(err&&err!==before){restoreQueue(backup,olds);return toast('Não foi possível: '+err)}
+  reconcileField();$('modal').style.display='none';saveAll();toast((pr?'Substituição':'Movimento')+' corrigido para '+mmss(sec));
+ };
+}
+function deleteMove(ev){
+ const pr=subPartner(ev),sai=ev.event_code==='SAI'?ev:pr,ent=ev.event_code==='ENT'?ev:pr;
+ if(pr){if(!confirm('Esta '+(ev.event_code==='ENT'?'entrada':'saída')+' faz parte de uma substituição (sai '+nmPl(sai.player_id)+' / entra '+nmPl(ent.player_id)+').\nAnular a substituição inteira?'))return}
+ else if(!confirm((ev.event_code==='ENT'?'Entrada':'Saída')+' de '+nmPl(ev.player_id)+' sem substituto associado (início/fim de parte ou expulsão).\nAnular só este movimento?'))return;
+ const dels=[ev,pr,subPosition(ent)].filter(Boolean),backup=queue.slice(),before=timelineError();
+ dels.forEach(e=>queue.splice(queue.indexOf(e),1));
+ const err=timelineError();
+ if(err&&err!==before){queue=backup;return toast('Não foi possível: '+err)}
+ reconcileField();saveAll();toast(pr?'Substituição anulada':'Movimento anulado');
+}
 // insere mantendo a ordem cronológica (depois dos eventos com o mesmo tempo)
 function insertSorted(evs){for(const ev of evs){let i=queue.length;while(i>0&&queue[i-1].game_marker>ev.game_marker)i--;queue.splice(i,0,ev)}}
 // reproduz entradas/saídas e devolve o primeiro erro de coerência (ou null)
@@ -1086,10 +1162,11 @@ function openFix(){
  const cp=session.currentPart||(session.part2_start?2:1);
  const opts='<option value="">— ninguém —</option>'+called().map(p=>`<option value="${p.number}">${p.number} - ${esc(p.name)}</option>`).join('');
  showModal('Corrigir substituição esquecida',`
-  <div class="small">Regista a entrada e/ou a saída no momento em que realmente aconteceram. O tempo em jogo de cada atleta é recalculado.</div>
+  <div class="small">Regista a substituição (quem sai e quem entra) no momento em que realmente aconteceu. O tempo em jogo dos dois é recalculado.</div>
   <div class="row"><label class="small">Sai <select id="fxOut">${opts}</select></label><label class="small">Entra <select id="fxIn">${opts}</select></label></div>
   <div class="row"><label class="small">Parte <select id="fxPart"><option value="1">1ª</option><option value="2">2ª</option></select></label>
   <label class="small">Tempo da parte (mm:ss) <input id="fxTime" style="width:90px" placeholder="ex. 12:30"></label></div>
+  <label class="small" style="display:flex;gap:8px;align-items:center;margin-top:8px;font-weight:400" title="Só para movimentos sem troca: cinco iniciais, saídas no fim da parte ou expulsão"><input type="checkbox" id="fxAlone"> Sem substituto (início/fim de parte ou expulsão): registar só a entrada ou só a saída</label>
   <div class="small" id="fxHint" style="margin-top:6px"></div>
   <div style="margin-top:10px"><button id="fxApply" class="btn green" type="button">Aplicar correção</button></div>`);
  $('fxPart').value=String(cp);$('fxTime').value=mmss(partElapsed(cp));
@@ -1100,7 +1177,10 @@ function openFix(){
  $('fxPart').onchange=$('fxTime').oninput=hint;hint();
  $('fxApply').onclick=()=>{
   const out=$('fxOut').value===''?null:+$('fxOut').value,inn=$('fxIn').value===''?null:+$('fxIn').value,p=+$('fxPart').value,sec=parseMMSS($('fxTime').value);
-  if(out==null&&inn==null)return toast('Escolhe quem sai e/ou quem entra');
+  const alone=$('fxAlone').checked;
+  if(out==null&&inn==null)return toast(alone?'Escolhe quem sai ou quem entra':'Escolhe quem sai e quem entra');
+  if(!alone&&(out==null||inn==null))return toast('Uma substituição é sempre um par: escolhe quem sai e quem entra (ou marca "Sem substituto")');
+  if(alone&&out!=null&&inn!=null)return toast('Com "Sem substituto" escolhe só um jogador (ou desmarca a opção)');
   if(out!=null&&out===inn)return toast('O jogador que sai e o que entra são o mesmo');
   if(sec==null)return toast('Tempo inválido. Usa mm:ss, por exemplo 12:30');
   if(sec>partElapsed(p)+1)return toast('Esse tempo ainda não aconteceu na '+p+'ª parte (decorreu '+mmss(partElapsed(p))+')');
@@ -1128,6 +1208,7 @@ function openFix(){
     }else if(ended)news.push(mkAt(inn,'SAI',p,endSec,NOTE)); // parte já terminada: fecha a presença no fim
    }
   }
+  if(out!=null&&inn!=null){const sid='sub_'+Math.random().toString(36).slice(2,9);news.forEach(e=>e.sub_id=sid)}
   insertSorted(news);const err=timelineError();
   if(err&&err!==before){
    queue=backup;
@@ -1142,6 +1223,7 @@ $('fixSubBtn').onclick=openFix;
 document.addEventListener('click',e=>{
  const b=e.target.closest('.editTime');if(!b)return;
  const ev=queue[+b.dataset.i];if(!ev)return;
+ if(isMove(ev.event_code))return openMoveTime(ev);
  const v=prompt('Novo tempo deste evento na '+ev.part+'ª parte (mm:ss):',mmss(Math.max(0,Math.round(ev.game_marker-partBase(ev.part)))));
  if(v===null)return;
  const sec=parseMMSS(v);if(sec==null)return toast('Formato inválido. Usa mm:ss, por exemplo 12:30');
@@ -1343,9 +1425,9 @@ function heatURL(pts,kind,scale=1){
   const c=cv.getContext('2d'),im=c.createImageData(W,H);
   for(let k=0;k<g.length;k++){
    const t=Math.pow(g[k]/max,.7),o=k*4;
-   if(kind==='off'){im.data[o]=255;im.data[o+1]=Math.round(215-175*t);im.data[o+2]=0}       // amarelo -> laranja
+   if(kind==='off'){im.data[o]=Math.round(232-22*t);im.data[o+1]=Math.round(170-35*t);im.data[o+2]=0}  // amarelo torrado (E8AA00 -> D28700)
    else{im.data[o]=17;im.data[o+1]=17;im.data[o+2]=17}                                     // preto
-   im.data[o+3]=Math.round(Math.min(1,t*1.1)*(kind==='off'?215:185)*scale);
+   im.data[o+3]=Math.round(Math.min(1,t*1.25)*(kind==='off'?240:185)*scale);
   }
   c.putImageData(im,0,0);url=cv.toDataURL('image/png');
  }
@@ -1379,9 +1461,9 @@ function renderGoalsInfo(){
   setHTML('giMapNote',`A mostrar <strong>${shown.length}</strong> de ${located.length} pontos · <strong>GOL</strong> círculo grande amarelo · <strong>GOS</strong> círculo grande preto · <strong>RAB</strong> círculo pequeno · <strong>RFB</strong> ✕ · <strong>RSO</strong> ◆ · <strong>DEF</strong> ■ (na área)`);
  }else if(view==='both'){
   const offP=shown.filter(e=>HEAT.off.includes(e.event_code)),defP=shown.filter(e=>HEAT.def.includes(e.event_code));
-  setHTML('giMap',goalMapSVG([],'',[heatURL(defP.map(atLoc),'def',.9),heatURL(offP.map(atLoc),'off',.8)]));
+  setHTML('giMap',goalMapSVG([],'',[heatURL(defP.map(atLoc),'def',.9),heatURL(offP.map(atLoc),'off',1)]));
   const sw=c=>`<span style="display:inline-block;width:10px;height:10px;background:${c};border:1px solid #111;vertical-align:middle"></span>`;
-  setHTML('giMapNote',`${sw('#FFD400')} <strong>Beira-Mar</strong> (GOL, RAB, RFB): <strong>${offP.length}</strong> ações · ${sw('#111')} <strong>Adversário</strong> (GOS, RSO, DEF): <strong>${defP.length}</strong> ações · cada cor é relativa ao seu próprio máximo`);
+  setHTML('giMapNote',`${sw('#E0A000')} <strong>Beira-Mar</strong> (GOL, RAB, RFB): <strong>${offP.length}</strong> ações · ${sw('#111')} <strong>Adversário</strong> (GOS, RSO, DEF): <strong>${defP.length}</strong> ações · cada cor é relativa ao seu próprio máximo`);
  }else{
   setHTML('giMap',goalMapSVG([],'',heatURL(shown.map(atLoc),view)));
   setHTML('giMapNote',`Mapa de calor <strong>${view==='off'?'ofensivo':'defensivo'}</strong> (${HEAT[view].filter(c=>c!=='DEF'||shown.some(e=>e.event_code==='DEF')).join(', ')}): <strong>${shown.length}</strong> ações com local · cor mais forte = mais ações nessa zona (relativo ao máximo)`);
@@ -1396,7 +1478,7 @@ buildMapFilter();
   if(resp.ok&&!ROSTER.length){const rows=rowsToRoster(splitCSV(await resp.text()));if(rows.length){ROSTER=rows;localStorage.setItem(K.r,JSON.stringify(ROSTER))}}
  }catch(e){}
  if(!ROSTER.length)toast('Não foi possível carregar o atletas.csv (abre a página via servidor, não diretamente do ficheiro)');
- defSession();fixField();fillInputs();initCharts();renderAll();
+ defSession();fixField();fillInputs();updateGraphLimitNote();initCharts();renderAll();
  if(session.clockRunning)lock();
  setInterval(()=>{
   renderLive();updTimes();renderStats();renderSummary();
