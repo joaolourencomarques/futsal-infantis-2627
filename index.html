@@ -249,7 +249,7 @@ canvas{width:100%!important;height:300px!important}
 
 <script>
 /* ===== ÚNICA LINHA A ALTERAR PARA OUTRO ESCALÃO ===== */
-const ESCALAO='Infantis B 2026/27';
+const ESCALAO='Juvenis 2026/27';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad=n=>String(n).padStart(2,'0');
@@ -1148,8 +1148,12 @@ function setGoalAssistant(goal,n){
 function goalInfo(ev,force=false,newGoal=false){
  if(!ev)return;
  const scored=ev.event_code==='GOL';
- if(!force&&!newGoal&&!(scored?OPTS.goalsFor:OPTS.goalsAgainst))return;
- const ask=force?'both':OPTS.goalAsk,askExtra=force||(scored?OPTS.goalsFor:OPTS.goalsAgainst);
+ // Duas opções independentes: a assistência e os detalhes da finalização.
+ // O botão ℹ permite sempre editar tudo, mesmo que a pergunta automática esteja desligada.
+ const askExtra=force||(scored?OPTS.goalsFor:OPTS.goalsAgainst);
+ const wantAssist=scored&&(force||OPTS.assists);
+ if(!askExtra&&!wantAssist)return;
+ const ask=force?'both':OPTS.goalAsk;
  const wantForma=askExtra&&ask!=='local',wantLocal=askExtra&&ask!=='forma';
  const linked=scored?goalAssistEvent(ev):null,oldAssist=ev.assist_player_id??linked?.player_id??null;
  const eligible=new Set((newGoal?onField.filter(Boolean).map(x=>Number(x.number)):onAt(Number(ev.game_marker))).filter(n=>n!==Number(ev.player_id)));
@@ -1158,7 +1162,7 @@ function goalInfo(ev,force=false,newGoal=false){
  const assistants=[...eligible].map(n=>ROSTER.find(x=>Number(x.number)===n)||{number:n,name:'Jogador sem ficha'}).sort((a,b)=>a.name.localeCompare(b.name,'pt'));
  let forma=ev.forma||'',lx=ev.local_x??null,ly=ev.local_y??null;
  showModal((scored?'Golo marcado':'Golo sofrido')+' — detalhes (opcional)',`
-  ${scored?`<div class="small"><strong>Quem fez a assistência?</strong> (opcional)</div>
+  ${wantAssist?`<div class="small"><strong>Quem fez a assistência?</strong> (opcional)</div>
    <select id="giAssist" aria-label="Jogador que fez a assistência" style="width:100%;margin:6px 0 12px"><option value="">Sem assistência</option>
     ${assistants.map(p=>`<option value="${p.number}" ${oldAssist!=null&&Number(oldAssist)===Number(p.number)?'selected':''}>${esc(p.number+' - '+p.name)}</option>`).join('')}</select>`:''}
   ${wantForma||wantLocal?'<div class="small">Podes saltar e preencher depois com o botão ℹ na tabela de eventos.</div>':''}
@@ -1178,7 +1182,7 @@ function goalInfo(ev,force=false,newGoal=false){
   $('mBody').querySelectorAll('.giForma').forEach(x=>x.classList.toggle('active',x.dataset.c===forma));});
  $('giSkip').onclick=()=>{$('modal').style.display='none'};
  $('giSave').onclick=()=>{
-  if(scored){const id=$('giAssist').value,assist=id===''?null:Number(id);
+  if(wantAssist){const id=$('giAssist').value,assist=id===''?null:Number(id);
    if(assist!=null&&(!Number.isInteger(assist)||assist===Number(ev.player_id)||!assistants.some(p=>Number(p.number)===assist)))return toast('Assistente inválido');
    setGoalAssistant(ev,assist);
   }
@@ -1212,13 +1216,13 @@ function shotLoc(ev,force){
  if($('giClear'))$('giClear').onclick=()=>{delete ev.local_x;delete ev.local_y;$('modal').style.display='none';saveAll()};
 }
 /* ---------- Opções de registo ---------- */
-const OPTS_DEF={shotsFor:true,shotsAgainst:true,goalsFor:true,goalsAgainst:true,goalAsk:'both',mapCodes:['GOL','GOS','RAB','RFB','RSO','DEF'],mapView:'pts'};
+const OPTS_DEF={shotsFor:true,shotsAgainst:true,goalsFor:true,goalsAgainst:true,assists:true,goalAsk:'both',mapCodes:['GOL','GOS','RAB','RFB','RSO','DEF'],mapView:'pts'};
 function loadOpts(){const o={...OPTS_DEF,...load(K.o,{})};if(!Array.isArray(o.mapCodes))o.mapCodes=OPTS_DEF.mapCodes.slice();if(!['pts','off','def'].includes(o.mapView))o.mapView='pts';return o}
 let OPTS=loadOpts();
 function saveOpts(){try{localStorage.setItem(K.o,JSON.stringify(OPTS))}catch{}updOptsLabel()}
 function updOptsLabel(){
  const on=v=>v?'sim':'não',el=$('optsLabel');if(!el)return;
- el.textContent='Local — remates: '+on(OPTS.shotsFor)+' · remates sofridos: '+on(OPTS.shotsAgainst)+' · golos marcados: '+on(OPTS.goalsFor)+' · golos sofridos: '+on(OPTS.goalsAgainst);
+ el.textContent='Local — remates: '+on(OPTS.shotsFor)+' · remates sofridos: '+on(OPTS.shotsAgainst)+' · golos marcados: '+on(OPTS.goalsFor)+' · golos sofridos: '+on(OPTS.goalsAgainst)+' · assistências: '+on(OPTS.assists);
 }
 function openOpts(){
  const cb=(k,txt)=>`<label class="small" style="display:flex;gap:8px;align-items:center;margin-top:8px;font-weight:400"><input type="checkbox" data-opt="${k}" ${OPTS[k]?'checked':''}> ${txt}</label>`;
@@ -1231,7 +1235,10 @@ function openOpts(){
   ${cb('goalsFor','Abrir detalhes ao registar um <strong>golo marcado</strong>')}
   ${cb('goalsAgainst','Abrir detalhes ao registar um <strong>golo sofrido</strong>')}
   <label class="small" style="display:flex;gap:8px;align-items:center;margin-top:8px;font-weight:400">Nos golos, perguntar
-   <select id="optAsk"><option value="both">Forma e local</option><option value="local">Só o local</option><option value="forma">Só a forma</option></select></label>`);
+   <select id="optAsk"><option value="both">Forma e local</option><option value="local">Só o local</option><option value="forma">Só a forma</option></select></label>
+  <div class="section-title" style="margin-top:12px">Assistências</div>
+  ${cb('assists','Perguntar <strong>quem fez a assistência</strong> ao registar um golo marcado')}
+  <div class="small" style="margin-top:4px">Esta opção é independente dos detalhes dos golos. As assistências continuam a poder ser editadas pelo botão ℹ na tabela de eventos.</div>`);
  $('optAsk').value=OPTS.goalAsk;
  $('mBody').querySelectorAll('[data-opt]').forEach(i=>i.onchange=()=>{OPTS[i.dataset.opt]=i.checked;saveOpts()});
  $('optAsk').onchange=()=>{OPTS.goalAsk=$('optAsk').value;saveOpts()};
