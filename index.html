@@ -997,9 +997,6 @@ const EXPORT_CATS=[
  ['recper','Recuperações e perdas (REC, PER)',['REC','PER']],
  ['faltas','Faltas (FCO, FSO)',['FCO','FSO']],
  ['def','Defesas do GR (DEF)',['DEF']],
- ['pos','Posições (FIX, ALA, PIV, GR)',['P_FIXO','P_ALA','P_PIVOT','P_GR']],
- ['aval','Avaliações, notas e fair play',null],
- ['dt','Descontos de tempo / pausas (DT)',['DT']]
 ];
 const exportCatOf=c=>{for(const [k,,codes] of EXPORT_CATS)if(codes&&codes.includes(c))return k;return'aval'};
 function exportEvents(cats,part){
