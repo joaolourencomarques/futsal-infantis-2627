@@ -909,7 +909,7 @@ const GUIDE=[
   ['Opções de registo','<strong>⚙ Opções de registo</strong> define o que a app pergunta ao registar golos, remates e assistências. Desliga para registar mais depressa.'],
   ['Limpar campo','Tira todos os jogadores do campo de uma vez (regista as saídas).']]],
  ['3. Análise — depois do jogo','Lê o jogo a partir dos dados.',[
-  ['Resumo do jogo','Golos marcados e sofridos por forma, e remates com local.'],
+  ['Resumo do jogo','Golos marcados e sofridos por forma, e remates com local. Só aparece quando há perguntas de local/forma ligadas nas opções de registo ou golos/remates com local ou forma já registados.'],
   ['Mapa do campo','Escolhe o que mostrar (GOL, GOS, RAB, RFB, RSO, DEF), a parte e o jogador. Em <strong>Vista</strong>: pontos, calor ofensivo (amarelo), calor defensivo (preto) ou os dois.'],
   ['Estatísticas por jogador','Tempo em jogo, golos, assistências, remates, <strong>eficácia</strong> (golos ÷ remates), recuperações, perdas e faltas. Em <strong>Por 40 min</strong> os valores ficam comparáveis entre quem jogou pouco e muito.'],
   ['Gráficos','Tempo por jogador, principais ações, intensidade ofensiva vs defensiva, entradas e saídas, radar para comparar jogadores e eventos ao longo do tempo.'],
@@ -1408,7 +1408,7 @@ function shotLoc(ev,force){
 const OPTS_DEF={shotsFor:true,shotsAgainst:true,goalsFor:true,goalsAgainst:true,assists:true,goalAsk:'both',mapCodes:['GOL','GOS','RAB','RFB','RSO','DEF'],mapView:'pts'};
 function loadOpts(){const o={...OPTS_DEF,...load(K.o,{})};if(!Array.isArray(o.mapCodes))o.mapCodes=OPTS_DEF.mapCodes.slice();if(!['pts','off','def','both'].includes(o.mapView))o.mapView='pts';return o}
 let OPTS=loadOpts();
-function saveOpts(){try{localStorage.setItem(K.o,JSON.stringify(OPTS))}catch{}updOptsLabel();if(typeof renderField==='function')renderField()}
+function saveOpts(){try{localStorage.setItem(K.o,JSON.stringify(OPTS))}catch{}updOptsLabel();if(typeof renderField==='function')renderField();if(typeof renderGoalsInfo==='function')renderGoalsInfo()}
 function updOptsLabel(){
  const on=v=>v?'sim':'não',el=$('optsLabel');if(!el)return;
  el.textContent='Local — remates: '+on(OPTS.shotsFor)+' · remates sofridos: '+on(OPTS.shotsAgainst)+' · golos marcados: '+on(OPTS.goalsFor)+' · golos sofridos: '+on(OPTS.goalsAgainst)+' · assistências: '+on(OPTS.assists);
@@ -1500,6 +1500,10 @@ function setHTML(id,h){if(lastGI[id]!==h){$(id).innerHTML=h;lastGI[id]=h}}
 let mapPlayersSig='';
 function renderGoalsInfo(){
  if(!$('goalsInfo')||!$('mapPartSel'))return;
+ // sem perguntas de local/forma ligadas e sem nenhum golo/remate com local ou forma, o resumo de golos e o mapa não têm nada para mostrar
+ const used=OPTS.shotsFor||OPTS.shotsAgainst||OPTS.goalsFor||OPTS.goalsAgainst||queue.some(e=>['GOL','GOS','RAB','RFB','RSO'].includes(e.event_code)&&(e.local_x!=null||e.forma));
+ $('goalsInfo').style.display=used?'':'none';
+ if(!used)return;
  const gs=queue.filter(e=>e.event_code==='GOL'),gc=queue.filter(e=>e.event_code==='GOS');
  const list=a=>{const c={};a.forEach(e=>{const k=e.forma_label||'sem indicação';c[k]=(c[k]||0)+1});return Object.entries(c).sort((x,y)=>y[1]-x[1]).map(([k,n])=>`<div class="small">${esc(k)} <strong>×${n}</strong></div>`).join('')||'<div class="small muted">—</div>'};
  const SC=['GOL','GOS','RAB','RFB','RSO'],tot={},loc={};
