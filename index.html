@@ -29,6 +29,11 @@ th{background:#111;color:var(--y);font-weight:700}
 #roster .btn{padding:4px 9px;font-size:12px}
 #roster .btn[disabled]{opacity:.3}
 #roster.swap .player{border-color:#111;box-shadow:0 0 0 2px #FFD400}
+#roster .player.guest{border-style:dashed;border-color:#b38f00;background:#fffdf0}
+#roster .gtag{font-size:10px;font-weight:700;background:#111;color:#FFD400;border-radius:999px;padding:1px 7px;margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 4px 3px 3px;background:#fffdf0;cursor:pointer;font-size:13px}
+.gchip img,.gchip .gi{width:26px;height:26px;border-radius:50%;object-fit:cover;background:#eee;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#666}
+.gchip .gx{border:none;background:none;cursor:pointer;font-size:14px;color:#777;padding:0 4px}
 .initials{align-items:center;justify-content:center;font-weight:700;color:#666;font-size:20px}
 .name{font-weight:700;text-align:center}
 .empty{margin-top:40px;color:#8891a7}
@@ -157,7 +162,10 @@ canvas{width:100%!important;height:300px!important}
 <div class="card">
   <div class="row" style="justify-content:space-between;margin-top:0">
     <div class="section-title" style="margin:0" title="Aparecem todos por defeito. Usa Retirar nos que não estão convocados para este jogo">3. Convocados <span id="calledCount" class="small"></span></div>
+    <div class="row" style="margin:0;gap:6px">
+    <button id="guestBtn" class="btn" type="button" title="Junta a este jogo um atleta de outro escalão (número, nome e foto). Fica guardado para os próximos jogos" style="padding:4px 10px;font-size:13px">+ Atleta de outro escalão</button>
     <button id="rosterToggle" class="btn warn" type="button" title="Mostra ou esconde a lista de convocados (aparece sempre ao fazer uma troca)" style="padding:4px 10px;font-size:13px">Esconder</button>
+    </div>
   </div>
   <div id="roster" class="players"></div>
   <div id="absentBox" style="display:none;margin-top:12px"><div class="small"><strong>Não convocados</strong></div><div id="absentList" class="row"></div></div>
@@ -512,7 +520,7 @@ function playerStats(){
 }
 
 /* ---------- Render ---------- */
-const photoSrc=p=>'images/'+(p.photo||p.number+'.jpg');
+const photoSrc=p=>String(p.photo||'').startsWith('data:')?p.photo:'images/'+(p.photo||p.number+'.jpg');
 const initials=n=>String(n).split(' ').map(x=>x[0]||'').join('').slice(0,2).toUpperCase();
 const vis=p=>`<img class="photo" src="${esc(photoSrc(p))}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="initials" style="display:none">${esc(initials(p.name))}</div>`;
 
@@ -523,7 +531,7 @@ function renderRoster(){
  const hide=rosterHidden&&swapIdx===null;
  $('roster').style.display=hide?'none':'';$('roster').classList.toggle('swap',swapIdx!==null);
  $('rosterToggle').textContent=rosterHidden?'Mostrar':'Esconder';
- $('roster').innerHTML=list.filter(p=>!inField(p.number)||swapIdx===null).map(p=>`<div class="player" title="Tempo em jogo: ${fmt(playSec(p.number))}">${vis(p)}<div class="pinfo"><span class="name" title="${p.number} - ${esc(p.name)}">${p.number} - ${esc(p.name)}</span><span class="small">Tempo: <strong class="playTime" data-player="${p.number}">${fmt(playSec(p.number))}</strong>${inField(p.number)?' · em campo':''}</span></div>
+ $('roster').innerHTML=list.filter(p=>!inField(p.number)||swapIdx===null).map(p=>`<div class="player${p.guest?' guest':''}" title="Tempo em jogo: ${fmt(playSec(p.number))}${p.guest?' · atleta de outro escalão':''}">${vis(p)}<div class="pinfo"><span class="name" title="${p.number} - ${esc(p.name)}">${p.number} - ${esc(p.name)}</span><span class="small">Tempo: <strong class="playTime" data-player="${p.number}">${fmt(playSec(p.number))}</strong>${inField(p.number)?' · em campo':''}</span>${p.guest?`<span class="gtag" title="Novo Atleta">${esc(p.origin||'Outro escalão')}</span>`:''}</div>
   <div class="pbtns"><button class="btn gray addFieldBtn" data-num="${p.number}" type="button" title="${swapIdx!==null?'Entra para o lugar do jogador escolhido em Trocar':'Coloca este jogador em campo (regista a entrada)'}" ${inField(p.number)?'disabled':''}>${swapIdx!==null?'⇄ Entrar':'Entrar'}</button><button class="btn removeBtn" data-num="${p.number}" type="button" title="Retirar dos convocados deste jogo">Retirar</button></div></div>`).join('');
  $('absentBox').style.display=ab.length?'block':'none';
  $('absentList').innerHTML=ab.map(p=>`<span style="white-space:nowrap"><span class="small">${p.number} - ${esc(p.name)}</span> <button class="btn restoreBtn" data-num="${p.number}" type="button" title="Volta a convocar este jogador">Repor</button></span>`).join('');
@@ -897,6 +905,7 @@ const GUIDE=[
  ['1. Essencial — durante o jogo','Precisas disto em todos os jogos.',[
   ['Informação do jogo','Na secção 2 preenche o adversário, a data, a competição, quem regista e a duração de cada parte.'],
   ['Convocados','Na secção 3 aparecem todos os atletas, em cartões pequenos. Usa <strong>Retirar</strong> nos que não estão convocados (e <strong>Repor</strong> para voltar atrás). <strong>Esconder</strong> recolhe a lista; ao carregar em Trocar ela volta a aparecer.'],
+  ['Atletas de outros escalões','<strong>+ Atleta de outro escalão</strong> cria o perfil na hora (número, nome, escalão e foto, que podes tirar no momento). Fica guardado no jogo e em <strong>Usados recentemente</strong>: no jogo seguinte basta um toque.'],
   ['Cinco iniciais e relógio','Carrega em <strong>Entrar</strong> em cinco jogadores e depois em <strong>Início 1ª Parte</strong>. O relógio só arranca com jogadores em campo.'],
   ['Registar ações','Só depois de iniciar a parte. Nos cartões dos jogadores em campo (secção 4) carrega na sigla: GOL, RAB, RFB, REC, PER, FCO, FSO, FAI (e ASS, se a pergunta das assistências estiver desligada nas opções). Ações do adversário/guarda-redes: <strong>Golo sofrido</strong>, <strong>Defesa do GR</strong>, <strong>Remate sofrido</strong>.'],
   ['Substituições','<strong>Trocar</strong> no jogador que sai e depois <strong>Entrar</strong> no que entra. <strong>Sair</strong> só tira o jogador.'],
@@ -966,7 +975,7 @@ function goal(num){
 }
 document.addEventListener('click',e=>{
  const t=e.target;let b;
- if(b=t.closest('.removeBtn')){const n=+b.dataset.num;if(inField(n))return toast('Está em campo — tira-o primeiro');const k=queue.filter(e=>e.player_id===n).length;if(k)return toast('Tem '+k+' eventos registados neste jogo. Se for de um jogo anterior, usa "Novo jogo".');session.absent=[...absent(),n];saveAll();return}
+ if(b=t.closest('.removeBtn')){const n=+b.dataset.num;if(inField(n))return toast('Está em campo — tira-o primeiro');const k=queue.filter(e=>e.player_id===n).length;if(k)return toast('Tem '+k+' eventos registados neste jogo. Se for de um jogo anterior, usa "Novo jogo".');const pr=ROSTER.find(r=>r.number===n);if(pr&&pr.guest){if(!confirm('Tirar '+n+' - '+pr.name+' deste jogo? Continua nos atletas usados recentemente.'))return;removeGuest(n);return}session.absent=[...absent(),n];saveAll();return}
  if(b=t.closest('.restoreBtn')){const n=+b.dataset.num;session.absent=absent().filter(x=>x!==n);saveAll();return}
  if(b=t.closest('.addFieldBtn'))return enter(+b.dataset.num);
  if(b=t.closest('.pos-btn')){const i=+b.dataset.idx;if(onField[i]){onField[i].position=b.dataset.pos;add(onField[i].number,posCode[b.dataset.pos]);saveAll()}return}
@@ -1015,8 +1024,8 @@ function rowsToRoster(arr){
  return out;
 }
 $('newGameBtn').onclick=()=>{
- if(!confirm('Iniciar um novo jogo? Isto apaga os eventos, o relógio e os dados do jogo atual (guarda primeiro com "Guardar jogo"). O elenco mantém-se e voltam a aparecer todos os convocados.'))return;
- queue=[];onField=nulls();session={};swapIdx=null;defSession();fillInputs();saveAll();toast('Novo jogo iniciado');
+ if(!confirm('Iniciar um novo jogo? Isto apaga os eventos, o relógio e os dados do jogo atual (guarda primeiro com "Guardar jogo"). O elenco mantém-se e voltam a aparecer todos os convocados; os atletas de outros escalões saem (ficam nos usados recentemente).'))return;
+ queue=[];onField=nulls();session={};swapIdx=null;ROSTER=ROSTER.filter(r=>!r.guest);defSession();fillInputs();saveAll();toast('Novo jogo iniciado');
 };
 /* ---------- Eventos manuais ---------- */
 $('manualAdd').onclick=()=>{
@@ -1109,6 +1118,53 @@ $('loadGameFile').onchange=e=>{
  };
  r.readAsText(f);
 };
+
+/* ---------- Atletas de outros escalões: perfil criado na hora ---------- */
+// ficam no jogo (session.guests, gravados no .json) e numa lista de usados recentemente, comum a todos os escalões deste site
+const GUEST_LIB='futsal:guests';
+const guestLib=()=>{try{const a=JSON.parse(localStorage.getItem(GUEST_LIB));return Array.isArray(a)?a:[]}catch{return[]}};
+function saveGuestLib(a){try{localStorage.setItem(GUEST_LIB,JSON.stringify(a.slice(0,30)))}catch{toast('Sem espaço no browser para guardar mais fotos')}}
+function mergeGuests(){(session.guests||[]).forEach(g=>{if(!ROSTER.some(r=>r.number===g.number))ROSTER.push({...g,guest:true})})}
+function removeGuest(n){session.guests=(session.guests||[]).filter(g=>g.number!==n);ROSTER=ROSTER.filter(r=>!(r.guest&&r.number===n));session.absent=absent().filter(x=>x!==n);saveAll();toast('Atleta retirado deste jogo')}
+function addGuest(g){
+ const clash=ROSTER.find(r=>r.number===g.number);
+ if(clash)return toast('Já existe o nº '+g.number+' ('+clash.name+') neste jogo. Usa outro número.'),false;
+ const p={number:g.number,name:g.name,photo:g.photo||'',origin:g.origin||'',guest:true};
+ session.guests=[...(session.guests||[]),p];ROSTER.push(p);session.absent=absent().filter(x=>x!==p.number);
+ saveGuestLib([p,...guestLib().filter(x=>!(x.name===p.name&&x.origin===p.origin))]);
+ saveAll();toast(p.number+' - '+p.name+' junto ao jogo');return true;
+}
+function shrinkPhoto(file){return new Promise(res=>{
+ const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{
+  const k=Math.min(1,160/Math.max(im.width,im.height)),cv=document.createElement('canvas');
+  cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+  res(cv.toDataURL('image/jpeg',.8))};im.onerror=()=>res('');im.src=rd.result};rd.onerror=()=>res('');rd.readAsDataURL(file)})}
+function openGuest(){
+ const lib=guestLib().filter(g=>!ROSTER.some(r=>r.guest&&r.name===g.name));
+ let photo='';
+ showModal('Atleta de outro escalão',`
+  ${lib.length?`<div class="small"><strong>Usados recentemente</strong> — um toque junta ao jogo</div>
+   <div class="row" id="gLib" style="margin:6px 0 12px;gap:6px">${lib.map((g,i)=>`<span class="gchip" data-gi="${i}" title="Juntar ${esc(g.number+' - '+g.name)} a este jogo">${g.photo?`<img src="${g.photo}" alt="">`:`<span class="gi">${esc(initials(g.name))}</span>`}<strong>${g.number}</strong> ${esc(g.name)}${g.origin?` <span class="muted">(${esc(g.origin)})</span>`:''}<button class="gx" data-gdel="${i}" type="button" title="Apagar da lista de usados recentemente">✕</button></span>`).join('')}</div>
+   <div class="section-title" style="margin:6px 0 2px">Novo atleta</div>`:''}
+  <div class="row"><label class="small">Nº <input id="gNum" type="number" min="1" max="9999" style="width:80px"></label>
+   <label class="small" style="flex:1">Nome <input id="gName" placeholder="Nome e apelido" style="width:100%;box-sizing:border-box"></label></div>
+  <div class="row"><label class="small">Escalão de origem <input id="gOrigin" placeholder="ex. Iniciados" style="width:150px"></label>
+   <label class="small" title="No telemóvel ou tablet podes tirar a foto na hora">Foto (opcional) <input id="gPhoto" type="file" accept="image/*"></label>
+   <img id="gPrev" alt="" style="display:none;width:48px;height:48px;border-radius:8px;object-fit:cover"></div>
+  <div class="row" style="justify-content:flex-end;margin-top:12px"><button id="gAdd" class="btn green" type="button" title="Junta o atleta aos convocados deste jogo">Juntar ao jogo</button></div>`);
+ $('gPhoto').onchange=async e=>{const f=e.target.files[0];if(!f)return;photo=await shrinkPhoto(f);if(photo){$('gPrev').src=photo;$('gPrev').style.display=''}};
+ $('gAdd').onclick=()=>{
+  const number=parseInt($('gNum').value,10),name=$('gName').value.trim().replace(/\s+/g,' ');
+  if(!(number>0))return toast('Indica o número da camisola');if(!name)return toast('Indica o nome');
+  if(addGuest({number,name,photo,origin:$('gOrigin').value.trim()}))$('modal').style.display='none';
+ };
+ const box=$('gLib');if(box)box.onclick=e=>{
+  const d=e.target.closest('[data-gdel]');
+  if(d){e.stopPropagation();const g=lib[+d.dataset.gdel];saveGuestLib(guestLib().filter(x=>!(x.name===g.name&&x.origin===g.origin)));openGuest();return}
+  const c=e.target.closest('[data-gi]');if(c&&addGuest(lib[+c.dataset.gi]))$('modal').style.display='none';
+ };
+}
+$('guestBtn').onclick=openGuest;
 
 /* ---------- Relógio: botões ---------- */
 $('startPart').onclick=()=>startPart(1);
@@ -1547,7 +1603,7 @@ if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.
  try{
   const resp=await fetch('atletas.csv',{cache:'no-store'});
   // o plantel vem sempre do atletas.csv do site; durante um jogo com eventos mantém-se o plantel desse jogo
-  if(resp.ok&&(!ROSTER.length||!queue.length)){const rows=rowsToRoster(splitCSV(await resp.text()));if(rows.length){ROSTER=rows;localStorage.setItem(K.r,JSON.stringify(ROSTER))}}
+  if(resp.ok&&(!ROSTER.length||!queue.length)){const rows=rowsToRoster(splitCSV(await resp.text()));if(rows.length){ROSTER=rows;mergeGuests();localStorage.setItem(K.r,JSON.stringify(ROSTER))}}
  }catch(e){}
  if(!ROSTER.length)toast('Não foi possível carregar o atletas.csv (abre a página pelo endereço do site)');
  defSession();fixField();fillInputs();updateGraphLimitNote();initCharts();renderAll();
