@@ -906,31 +906,32 @@ const GUIDE=[
  ['1. Essencial — durante o jogo','Precisas disto em todos os jogos.',[
   ['Informação do jogo','Na secção 2 preenche o adversário, a data, a competição, quem regista e a duração de cada parte.'],
   ['Convocados','Na secção 3 aparecem todos os atletas, em cartões pequenos. Usa <strong>Retirar</strong> nos que não estão convocados (e <strong>Repor</strong> para voltar atrás). <strong>Esconder</strong> recolhe a lista; ao carregar em Trocar ela volta a aparecer.'],
-  ['Novo Atleta (outros escalões)','<strong>Novo Atleta</strong> cria o perfil na hora (número, nome e foto, que podes tirar no momento). Fica guardado no jogo e em <strong>Usados recentemente</strong>: no jogo seguinte basta um toque.'],
+  ['Novo Atleta (outros escalões)','<strong>Novo Atleta</strong> cria o perfil na hora (número, nome e foto, que podes tirar no momento). Sem foto, fica com uma imagem amarela com riscas pretas e um vulto. Fica guardado no jogo e em <strong>Usados recentemente</strong>: no jogo seguinte basta um toque (o ✕ apaga-o dessa lista). <strong>Retirar</strong> tira-o só do jogo; no <strong>Novo jogo</strong> sai sozinho.'],
   ['Cinco iniciais e relógio','Carrega em <strong>Entrar</strong> em cinco jogadores e depois em <strong>Início 1ª Parte</strong>. O relógio só arranca com jogadores em campo.'],
   ['Registar ações','Só depois de iniciar a parte. Nos cartões dos jogadores em campo (secção 4) carrega na sigla: GOL, RAB, RFB, REC, PER, FCO, FSO, FAI (e ASS, se a pergunta das assistências estiver desligada nas opções). Ações do adversário/guarda-redes: <strong>Golo sofrido</strong>, <strong>Defesa do GR</strong>, <strong>Remate sofrido</strong>.'],
   ['Substituições','<strong>Trocar</strong> no jogador que sai e depois <strong>Entrar</strong> no que entra. <strong>Sair</strong> só tira o jogador.'],
   ['Anular última ação','<strong>↶ Anular última ação</strong> (barra do relógio) desfaz o último toque: um evento, uma troca inteira, uma entrada ou saída.'],
-  ['Partes','<strong>Fim 1ª Parte</strong> → <strong>Início 2ª Parte</strong> → <strong>Fim 2ª Parte</strong>. <strong>Pausar/Retomar</strong> para tempo parado.'],
+  ['Partes','<strong>Fim 1ª Parte</strong> → <strong>Início 2ª Parte</strong> → <strong>Fim 2ª Parte</strong>. <strong>Pausar/Retomar</strong> para tempo parado. A barra do relógio mostra a parte, o tempo, o resultado e as faltas da parte (sofridas - cometidas), que fica a vermelho a partir da 5.ª falta cometida.'],
   ['Guardar','Ao intervalo e no fim a app pergunta se queres guardar (ou usa <strong>Guardar jogo</strong>): descarrega um .json com tudo, já com o nome AAAA-MM-DD_Escalão_Adversário. Põe-no na pasta partilhada do escalão.']]],
  ['2. Importante — corrigir erros','Para quando algo foi registado mal ou esquecido.',[
   ['Corrigir substituição','Esqueceste-te de uma troca? Indica quem sai, quem entra e o minuto real. É sempre em par; só os cinco iniciais, as saídas no fim da parte ou uma expulsão podem ir sozinhos, marcando "Sem substituto".'],
   ['Corrigir o tempo de um evento','Na tabela de eventos (secção 7), botão <strong>⏱</strong>. Numa entrada/saída de uma troca, o tempo muda para quem sai e quem entra ao mesmo tempo.'],
   ['Apagar um evento','Botão <strong>x</strong> na tabela de eventos. Numa troca, anula a substituição inteira (as duas metades).'],
   ['Detalhes de golos e remates','Botões <strong>ℹ</strong> (forma e local do golo) e <strong>📍</strong> (local do remate) na tabela de eventos.'],
-  ['Opções de registo','<strong>⚙ Opções de registo</strong> define o que a app pergunta ao registar golos, remates e assistências. Desliga para registar mais depressa.'],
+  ['Opções de registo','<strong>⚙ Opções de registo</strong> define o que a app pergunta ao registar golos, remates e assistências. Desliga para registar mais depressa; <strong>Selecionar todas</strong> e <strong>Limpar todas</strong> mudam todas de uma vez.'],
   ['Limpar campo','Tira todos os jogadores do campo de uma vez (regista as saídas).']]],
  ['3. Análise — depois do jogo','Lê o jogo a partir dos dados.',[
   ['Resumo do jogo','Golos marcados e sofridos por forma, e remates com local. Só aparece quando há perguntas de local/forma ligadas nas opções de registo ou golos/remates com local ou forma já registados.'],
   ['Mapa do campo','Escolhe o que mostrar (GOL, GOS, RAB, RFB, RSO, DEF), a parte e o jogador. Em <strong>Vista</strong>: pontos, calor ofensivo (amarelo), calor defensivo (preto) ou os dois.'],
   ['Estatísticas por jogador','Tempo em jogo, golos, assistências, remates, <strong>eficácia</strong> (golos ÷ remates), recuperações, perdas e faltas. Em <strong>Por 40 min</strong> os valores ficam comparáveis entre quem jogou pouco e muito.'],
-  ['Gráficos','Tempo por jogador, principais ações, intensidade ofensiva vs defensiva, entradas e saídas, radar para comparar jogadores e eventos ao longo do tempo.'],
+  ['Gráficos','Tempo por jogador, principais ações, intensidade ofensiva vs defensiva, entradas e saídas, radar para comparar jogadores e eventos ao longo do tempo. O ⓘ por baixo dos gráficos explica a escala de tempo.'],
   ['Exportar','<strong>Exportar estatísticas CSV</strong> e <strong>Exportar Eventos CSV</strong> (escolhes os tipos de eventos e a parte). Abre no Excel.']]],
  ['4. Complementar','Útil, mas opcional.',[
   ['Registo de outros eventos','Secção 6: avaliações (posicionamento, atitude, intensidade…) e notas, para um jogador ou para a equipa.'],
   ['Abrir jogo','Carrega um .json guardado para rever ou continuar um jogo.'],
-  ['Novo jogo','Apaga os eventos e o relógio (o plantel mantém-se). Guarda antes!'],
+  ['Novo jogo','Apaga os eventos e o relógio. O plantel volta a ser lido do atletas.csv do site e os atletas novos de outros escalões saem. Guarda antes!'],
   ['Dados no browser','Tudo fica guardado neste browser: recarregar a página não apaga o jogo. Noutro computador, usa Guardar/Abrir jogo.'],
+  ['Sem internet','Depois de abrires a app uma vez com rede, ela abre no pavilhão mesmo sem internet (com gráficos, plantel e fotos).'],
   ['Ajuda rápida','Passa o rato por cima dos botões para ver o que fazem.']]]
 ];
 $('legendBtn').onclick=()=>{
