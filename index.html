@@ -30,7 +30,6 @@ th{background:#111;color:var(--y);font-weight:700}
 #roster .btn[disabled]{opacity:.3}
 #roster.swap .player{border-color:#111;box-shadow:0 0 0 2px #FFD400}
 #roster .player.guest{border-style:dashed;border-color:#b38f00;background:#fffdf0}
-#roster .gtag{font-size:10px;font-weight:700;background:#111;color:#FFD400;border-radius:999px;padding:1px 7px;margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .gchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 4px 3px 3px;background:#fffdf0;cursor:pointer;font-size:13px}
 .gchip img,.gchip .gi{width:26px;height:26px;border-radius:50%;object-fit:cover;background:#eee;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#666}
 .gchip .gx{border:none;background:none;cursor:pointer;font-size:14px;color:#777;padding:0 4px}
@@ -149,7 +148,7 @@ canvas{width:100%!important;height:300px!important}
     <button id="endPart2" class="btn warn" title="Termina a 2ª parte e o jogo" type="button">Fim 2ª Parte</button>
     <button id="pauseClock" class="btn gray" title="Pausa o relógio (desconta o tempo parado)" type="button">Pausar relógio</button>
     <button id="resumeClock" class="btn" title="Retoma o relógio depois de uma pausa" type="button">Retomar relógio</button>
-    <button id="undoBtn" class="btn gray" title="Desfaz o último toque registado em campo (evento, troca, entrada ou saída)" type="button">↶ Anular último</button>
+    <button id="undoBtn" class="btn gray" title="Desfaz o último toque registado em campo (evento, troca, entrada ou saída)" type="button">↶ Anular última ação</button>
   </div>
   <div class="summary-grid">
     <div class="summary-box"><div class="small">Parte atual</div><div id="livePart" class="big">—</div></div>
@@ -163,7 +162,7 @@ canvas{width:100%!important;height:300px!important}
   <div class="row" style="justify-content:space-between;margin-top:0">
     <div class="section-title" style="margin:0" title="Aparecem todos por defeito. Usa Retirar nos que não estão convocados para este jogo">3. Convocados <span id="calledCount" class="small"></span></div>
     <div class="row" style="margin:0;gap:6px">
-    <button id="guestBtn" class="btn" type="button" title="Junta a este jogo um atleta de outro escalão (número, nome e foto). Fica guardado para os próximos jogos" style="padding:4px 10px;font-size:13px">+ Atleta de outro escalão</button>
+    <button id="guestBtn" class="btn" type="button" title="Junta a este jogo um atleta de outro escalão (número, nome e foto). Fica guardado para os próximos jogos" style="padding:4px 10px;font-size:13px">Novo Atleta</button>
     <button id="rosterToggle" class="btn warn" type="button" title="Mostra ou esconde a lista de convocados (aparece sempre ao fazer uma troca)" style="padding:4px 10px;font-size:13px">Esconder</button>
     </div>
   </div>
@@ -520,7 +519,9 @@ function playerStats(){
 }
 
 /* ---------- Render ---------- */
-const photoSrc=p=>String(p.photo||'').startsWith('data:')?p.photo:'images/'+(p.photo||p.number+'.jpg');
+// foto por defeito de um atleta novo sem foto: fundo amarelo, três riscas pretas e um vulto cinzento
+const NO_PHOTO='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120"><rect width="100" height="120" fill="#FFD400"/><rect x="64" width="9" height="120" fill="#111"/><rect x="77" width="9" height="120" fill="#111"/><rect x="90" width="10" height="120" fill="#111"/><circle cx="44" cy="50" r="19" fill="#8a8a8a"/><path d="M8 120c0-26 16-42 36-42s36 16 36 42z" fill="#8a8a8a"/></svg>');
+const photoSrc=p=>String(p.photo||'').startsWith('data:')?p.photo:p.guest?NO_PHOTO:'images/'+(p.photo||p.number+'.jpg');
 const initials=n=>String(n).split(' ').map(x=>x[0]||'').join('').slice(0,2).toUpperCase();
 const vis=p=>`<img class="photo" src="${esc(photoSrc(p))}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="initials" style="display:none">${esc(initials(p.name))}</div>`;
 
@@ -531,7 +532,7 @@ function renderRoster(){
  const hide=rosterHidden&&swapIdx===null;
  $('roster').style.display=hide?'none':'';$('roster').classList.toggle('swap',swapIdx!==null);
  $('rosterToggle').textContent=rosterHidden?'Mostrar':'Esconder';
- $('roster').innerHTML=list.filter(p=>!inField(p.number)||swapIdx===null).map(p=>`<div class="player${p.guest?' guest':''}" title="Tempo em jogo: ${fmt(playSec(p.number))}${p.guest?' · atleta de outro escalão':''}">${vis(p)}<div class="pinfo"><span class="name" title="${p.number} - ${esc(p.name)}">${p.number} - ${esc(p.name)}</span><span class="small">Tempo: <strong class="playTime" data-player="${p.number}">${fmt(playSec(p.number))}</strong>${inField(p.number)?' · em campo':''}</span>${p.guest?`<span class="gtag" title="Novo Atleta">${esc(p.origin||'Outro escalão')}</span>`:''}</div>
+ $('roster').innerHTML=list.filter(p=>!inField(p.number)||swapIdx===null).map(p=>`<div class="player${p.guest?' guest':''}" title="Tempo em jogo: ${fmt(playSec(p.number))}${p.guest?' · atleta de outro escalão':''}">${vis(p)}<div class="pinfo"><span class="name" title="${p.number} - ${esc(p.name)}">${p.number} - ${esc(p.name)}</span><span class="small">Tempo: <strong class="playTime" data-player="${p.number}">${fmt(playSec(p.number))}</strong>${inField(p.number)?' · em campo':''}</span></div>
   <div class="pbtns"><button class="btn gray addFieldBtn" data-num="${p.number}" type="button" title="${swapIdx!==null?'Entra para o lugar do jogador escolhido em Trocar':'Coloca este jogador em campo (regista a entrada)'}" ${inField(p.number)?'disabled':''}>${swapIdx!==null?'⇄ Entrar':'Entrar'}</button><button class="btn removeBtn" data-num="${p.number}" type="button" title="Retirar dos convocados deste jogo">Retirar</button></div></div>`).join('');
  $('absentBox').style.display=ab.length?'block':'none';
  $('absentList').innerHTML=ab.map(p=>`<span style="white-space:nowrap"><span class="small">${p.number} - ${esc(p.name)}</span> <button class="btn restoreBtn" data-num="${p.number}" type="button" title="Volta a convocar este jogador">Repor</button></span>`).join('');
@@ -905,11 +906,11 @@ const GUIDE=[
  ['1. Essencial — durante o jogo','Precisas disto em todos os jogos.',[
   ['Informação do jogo','Na secção 2 preenche o adversário, a data, a competição, quem regista e a duração de cada parte.'],
   ['Convocados','Na secção 3 aparecem todos os atletas, em cartões pequenos. Usa <strong>Retirar</strong> nos que não estão convocados (e <strong>Repor</strong> para voltar atrás). <strong>Esconder</strong> recolhe a lista; ao carregar em Trocar ela volta a aparecer.'],
-  ['Atletas de outros escalões','<strong>+ Atleta de outro escalão</strong> cria o perfil na hora (número, nome, escalão e foto, que podes tirar no momento). Fica guardado no jogo e em <strong>Usados recentemente</strong>: no jogo seguinte basta um toque.'],
+  ['Novo Atleta (outros escalões)','<strong>Novo Atleta</strong> cria o perfil na hora (número, nome e foto, que podes tirar no momento). Fica guardado no jogo e em <strong>Usados recentemente</strong>: no jogo seguinte basta um toque.'],
   ['Cinco iniciais e relógio','Carrega em <strong>Entrar</strong> em cinco jogadores e depois em <strong>Início 1ª Parte</strong>. O relógio só arranca com jogadores em campo.'],
   ['Registar ações','Só depois de iniciar a parte. Nos cartões dos jogadores em campo (secção 4) carrega na sigla: GOL, RAB, RFB, REC, PER, FCO, FSO, FAI (e ASS, se a pergunta das assistências estiver desligada nas opções). Ações do adversário/guarda-redes: <strong>Golo sofrido</strong>, <strong>Defesa do GR</strong>, <strong>Remate sofrido</strong>.'],
   ['Substituições','<strong>Trocar</strong> no jogador que sai e depois <strong>Entrar</strong> no que entra. <strong>Sair</strong> só tira o jogador.'],
-  ['Anular último','<strong>↶ Anular último</strong> (barra do relógio) desfaz o último toque: um evento, uma troca inteira, uma entrada ou saída.'],
+  ['Anular última ação','<strong>↶ Anular última ação</strong> (barra do relógio) desfaz o último toque: um evento, uma troca inteira, uma entrada ou saída.'],
   ['Partes','<strong>Fim 1ª Parte</strong> → <strong>Início 2ª Parte</strong> → <strong>Fim 2ª Parte</strong>. <strong>Pausar/Retomar</strong> para tempo parado.'],
   ['Guardar','Ao intervalo e no fim a app pergunta se queres guardar (ou usa <strong>Guardar jogo</strong>): descarrega um .json com tudo, já com o nome AAAA-MM-DD_Escalão_Adversário. Põe-no na pasta partilhada do escalão.']]],
  ['2. Importante — corrigir erros','Para quando algo foi registado mal ou esquecido.',[
@@ -1142,21 +1143,20 @@ function shrinkPhoto(file){return new Promise(res=>{
 function openGuest(){
  const lib=guestLib().filter(g=>!ROSTER.some(r=>r.guest&&r.name===g.name));
  let photo='';
- showModal('Atleta de outro escalão',`
+ showModal('Novo Atleta',`
   ${lib.length?`<div class="small"><strong>Usados recentemente</strong> — um toque junta ao jogo</div>
-   <div class="row" id="gLib" style="margin:6px 0 12px;gap:6px">${lib.map((g,i)=>`<span class="gchip" data-gi="${i}" title="Juntar ${esc(g.number+' - '+g.name)} a este jogo">${g.photo?`<img src="${g.photo}" alt="">`:`<span class="gi">${esc(initials(g.name))}</span>`}<strong>${g.number}</strong> ${esc(g.name)}${g.origin?` <span class="muted">(${esc(g.origin)})</span>`:''}<button class="gx" data-gdel="${i}" type="button" title="Apagar da lista de usados recentemente">✕</button></span>`).join('')}</div>
+   <div class="row" id="gLib" style="margin:6px 0 12px;gap:6px">${lib.map((g,i)=>`<span class="gchip" data-gi="${i}" title="Juntar ${esc(g.number+' - '+g.name)} a este jogo"><img src="${g.photo||NO_PHOTO}" alt=""><strong>${g.number}</strong> ${esc(g.name)}<button class="gx" data-gdel="${i}" type="button" title="Apagar da lista de usados recentemente">✕</button></span>`).join('')}</div>
    <div class="section-title" style="margin:6px 0 2px">Novo atleta</div>`:''}
   <div class="row"><label class="small">Nº <input id="gNum" type="number" min="1" max="9999" style="width:80px"></label>
    <label class="small" style="flex:1">Nome <input id="gName" placeholder="Nome e apelido" style="width:100%;box-sizing:border-box"></label></div>
-  <div class="row"><label class="small">Escalão de origem <input id="gOrigin" placeholder="ex. Iniciados" style="width:150px"></label>
-   <label class="small" title="No telemóvel ou tablet podes tirar a foto na hora">Foto (opcional) <input id="gPhoto" type="file" accept="image/*"></label>
+  <div class="row"><label class="small" title="No telemóvel ou tablet podes tirar a foto na hora">Foto (opcional) <input id="gPhoto" type="file" accept="image/*"></label>
    <img id="gPrev" alt="" style="display:none;width:48px;height:48px;border-radius:8px;object-fit:cover"></div>
   <div class="row" style="justify-content:flex-end;margin-top:12px"><button id="gAdd" class="btn green" type="button" title="Junta o atleta aos convocados deste jogo">Juntar ao jogo</button></div>`);
  $('gPhoto').onchange=async e=>{const f=e.target.files[0];if(!f)return;photo=await shrinkPhoto(f);if(photo){$('gPrev').src=photo;$('gPrev').style.display=''}};
  $('gAdd').onclick=()=>{
   const number=parseInt($('gNum').value,10),name=$('gName').value.trim().replace(/\s+/g,' ');
   if(!(number>0))return toast('Indica o número da camisola');if(!name)return toast('Indica o nome');
-  if(addGuest({number,name,photo,origin:$('gOrigin').value.trim()}))$('modal').style.display='none';
+  if(addGuest({number,name,photo}))$('modal').style.display='none';
  };
  const box=$('gLib');if(box)box.onclick=e=>{
   const d=e.target.closest('[data-gdel]');
